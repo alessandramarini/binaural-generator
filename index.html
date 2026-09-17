@@ -1,0 +1,1508 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuroSync Studio Pro - Hi-Res Master Workstation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lamejs/1.2.1/lame.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+        
+        :root {
+            --neon-cyan: #38bdf8;
+            --neon-indigo: #818cf8;
+            --neon-amber: #f59e0b;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #030712;
+            color: #f3f4f6;
+            overflow-x: hidden;
+        }
+
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .glass-panel-sub {
+            background: rgba(17, 24, 39, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 14px;
+            width: 14px;
+            border-radius: 50%;
+            background: #38bdf8;
+            cursor: pointer;
+            margin-top: -5px;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.9);
+            border: 2px solid #0f172a;
+            transition: transform 0.15s ease;
+        }
+
+        input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+        
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #1e293b;
+            border-radius: 2px;
+        }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(0.96); box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.6); }
+            70% { transform: scale(1); box-shadow: 0 0 0 18px rgba(56, 189, 248, 0); }
+            100% { transform: scale(0.96); box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); }
+        }
+        .is-playing .play-ring { animation: pulse-ring 2.8s infinite; }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0b0f19; }
+        ::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #374151; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between p-3 md:p-6 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-gray-950 to-black">
+
+    <header class="w-full max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4 mb-6 z-20">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center shadow-[0_0_20px_rgba(56,189,248,0.4)]">
+                <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                </svg>
+            </div>
+            <div>
+                <div class="flex items-center gap-2">
+                    <h1 class="text-xl md:text-2xl font-black tracking-tight text-white flex items-center gap-1.5">
+                        NEUROSYNC <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-indigo-400">PRO</span>
+                    </h1>
+                    <span class="text-[10px] uppercase font-bold tracking-widest bg-sky-500/10 text-sky-400 border border-sky-500/30 px-2 py-0.5 rounded-full">v4.0 Hi-Res Studio</span>
+                </div>
+                <p class="text-xs text-slate-400 font-medium" data-i18n="subtitle">Binaural Acoustic Architecture &bull; Monroe Hemi-Sync Protocol</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3 flex-wrap">
+            <div class="hidden sm:flex items-center gap-2 bg-slate-900/80 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-slate-300">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span data-i18n="dsp_active">DSP Audio Engine: <strong class="text-white">Active</strong></span>
+            </div>
+            <div class="bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 px-3 py-1.5 rounded-lg flex items-center gap-2">
+                <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                <span class="text-xs font-bold text-amber-300 tracking-wider" data-i18n="hi_res_badge">HI-RES AUDIO CERTIFIED 24-BIT</span>
+            </div>
+            <!-- Language Selector -->
+            <select id="langSelect" class="bg-slate-800 border border-slate-700 text-white text-xs font-bold rounded-lg p-1.5 focus:border-sky-500 focus:outline-none shadow-lg cursor-pointer">
+                <option value="de">Deutsch</option>
+                <option value="en">English</option>
+                <option value="es">Español</option>
+                <option value="fr">Français</option>
+                <option value="it" selected>Italiano</option>
+                <option value="ja">Japanese (日本語)</option>
+                <option value="pl">Polski</option>
+                <option value="pt">Português</option>
+            </select>
+        </div>
+    </header>
+
+    <main class="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 items-start z-10">
+        
+        <div class="lg:col-span-5 space-y-6">
+            <!-- Scope Panel -->
+            <div class="glass-panel rounded-2xl p-5 relative overflow-hidden">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="inline-block w-2.5 h-2.5 rounded-full bg-sky-400"></span>
+                        <h2 class="text-xs uppercase tracking-wider font-bold text-slate-300" data-i18n="scope_title">Stereo Phase Scope & Spectrum</h2>
+                    </div>
+                    <div class="flex gap-1.5 text-[11px] font-mono">
+                        <button id="viewScopeBtn" class="px-2 py-0.5 rounded bg-sky-500 text-slate-950 font-bold" data-i18n="btn_lissajous">Lissajous</button>
+                        <button id="viewSpectrumBtn" class="px-2 py-0.5 rounded bg-slate-800 text-slate-400 hover:text-white" data-i18n="btn_fft">FFT Bars</button>
+                    </div>
+                </div>
+                <div class="relative bg-slate-950 rounded-xl overflow-hidden border border-slate-800 h-52 flex items-center justify-center">
+                    <canvas id="visualizerCanvas" width="480" height="240" class="w-full h-full object-cover"></canvas>
+                    <div class="absolute bottom-2 left-2 right-2 flex justify-between pointer-events-none text-[10px] font-mono text-slate-500">
+                        <span>CORR: <span id="scopeCorr" class="text-sky-400">+0.88</span></span>
+                        <span>OFFSET: <span id="scopeOffset" class="text-indigo-400">4.0 Hz</span></span>
+                        <span>PHASE: <span id="scopePhase" class="text-emerald-400" data-i18n="phase_binaural">BINAURAL STEREO</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Brainwave State Card -->
+            <div class="glass-panel rounded-2xl p-5 border-l-4 border-l-sky-500 relative">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <div class="text-[10px] font-mono tracking-widest text-slate-400 uppercase" data-i18n="active_phase">Fase Protocollo Attiva</div>
+                        <div id="displayPhase" class="text-xl font-extrabold text-white mt-0.5" data-i18n="standby">In Attesa...</div>
+                    </div>
+                    <span id="badgeWave" class="text-xs font-mono font-bold px-2.5 py-1 rounded-md bg-slate-800 text-slate-300 border border-slate-700">STANDBY</span>
+                </div>
+
+                <div class="grid grid-cols-3 gap-2.5 font-mono mb-4 text-center">
+                    <div class="bg-slate-900/90 rounded-lg p-2.5 border border-slate-800">
+                        <div class="text-[10px] text-slate-400 uppercase" data-i18n="left_ch">Sinistro (L)</div>
+                        <div id="displayFreqL" class="text-sm font-bold text-sky-400 mt-1">-- Hz</div>
+                    </div>
+                    <div class="bg-slate-900/90 rounded-lg p-2.5 border border-slate-800">
+                        <div class="text-[10px] text-slate-400 uppercase" data-i18n="right_ch">Destro (R)</div>
+                        <div id="displayFreqR" class="text-sm font-bold text-indigo-400 mt-1">-- Hz</div>
+                    </div>
+                    <div class="bg-slate-900/90 rounded-lg p-2.5 border border-slate-800">
+                        <div class="text-[10px] text-slate-400 uppercase" data-i18n="delta_eye">Delta Oculare</div>
+                        <div id="displayDelta" class="text-sm font-bold text-emerald-400 mt-1">-- Hz</div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex justify-between text-xs font-mono text-slate-400 mb-1.5">
+                        <span id="timeCurrent">00:00</span>
+                        <span class="text-slate-500 font-sans text-[11px]" id="phaseTimelineMarker">Alpha &rarr; Focus 10</span>
+                        <span id="timeTotal">45:00</span>
+                    </div>
+                    <div class="w-full bg-slate-950 rounded-full h-3 p-0.5 border border-slate-800">
+                        <div id="progressBar" class="bg-gradient-to-r from-sky-500 via-indigo-500 to-sky-400 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="glass-panel-sub rounded-xl p-4 text-xs space-y-2 border border-slate-800/80">
+                <div class="font-bold text-slate-300 flex items-center justify-between">
+                    <span data-i18n="protocol_title">Protocollo 45 Minuti "Monroe Master"</span>
+                    <span class="text-[10px] text-sky-400 font-mono">FFR Sync</span>
+                </div>
+                <div class="text-slate-400 text-[11px] leading-relaxed space-y-1">
+                    <p><strong class="text-slate-200">00-05m:</strong> <span data-i18n="p_step1">Induzione Alpha (10 Hz).</span></p>
+                    <p><strong class="text-slate-200">05-15m:</strong> <span data-i18n="p_step2">Discesa Sweep continua verso Focus 10 Theta (4 Hz).</span></p>
+                    <p><strong class="text-slate-200">15-30m:</strong> <span data-i18n="p_step3">Focus 12 Espansione: Delta (1.5 Hz) + Layer Subliminale Gamma (40 Hz).</span></p>
+                    <p><strong class="text-slate-200">30-40m:</strong> <span data-i18n="p_step4">Focus 15 Punto Zero: Sub-Delta (0.5 Hz) con dominanza surf.</span></p>
+                    <p><strong class="text-slate-200">40-45m:</strong> <span data-i18n="p_step5">Rientro vigile con Sweep verso Beta (15 Hz) e grounding.</span></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="lg:col-span-7 space-y-6">
+            <div class="glass-panel rounded-2xl p-6">
+                <div class="flex border-b border-slate-800 pb-3 mb-6 gap-6 overflow-x-auto whitespace-nowrap">
+                    <button id="tabControlsBtn" class="text-sm font-bold text-sky-400 border-b-2 border-sky-400 pb-2 -mb-3 transition-colors flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <span data-i18n="tab_console">Console di Riproduzione</span>
+                    </button>
+                    <button id="tabExportBtn" class="text-sm font-bold text-slate-400 hover:text-white pb-2 -mb-3 transition-colors flex items-center gap-2">
+                        <svg class="w-4 h-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                        <span data-i18n="tab_export">Esportazione Hi-Res</span>
+                    </button>
+                    <button id="tabCommercialBtn" class="text-sm font-bold text-slate-400 hover:text-white pb-2 -mb-3 transition-colors flex items-center gap-2">
+                        <svg class="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" /></svg>
+                        <span data-i18n="tab_commercial">Pacchetto Vendita</span>
+                    </button>
+                    <button id="tabRVBtn" class="text-sm font-bold text-slate-400 hover:text-white pb-2 -mb-3 transition-colors flex items-center gap-2">
+                        <svg class="w-4 h-4 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                        <span data-i18n="tab_rv">Guida Remote Viewing</span>
+                    </button>
+                </div>
+
+                <!-- TAB 1: Real-time Controls -->
+                <div id="tabControls" class="space-y-6">
+                    <div class="flex flex-wrap items-center gap-4">
+                        <button id="btnPlay" class="play-ring flex-1 sm:flex-none bg-sky-500 hover:bg-sky-400 text-slate-950 font-extrabold py-3.5 px-8 rounded-full transition-all duration-200 transform hover:scale-105 shadow-[0_0_25px_rgba(56,189,248,0.4)] flex items-center justify-center gap-2">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" fill-rule="evenodd"></path></svg>
+                            <span data-i18n="btn_start">Avvia Sessione Live</span>
+                        </button>
+                        <button id="btnStop" class="bg-slate-800 hover:bg-slate-700 text-white font-bold py-3.5 px-6 rounded-full transition-all duration-200 opacity-50 cursor-not-allowed flex items-center gap-2" disabled>
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" clip-rule="evenodd"></path></svg>
+                            <span data-i18n="btn_stop">Stop</span>
+                        </button>
+                        <div class="flex items-center gap-2.5 bg-slate-900/90 border border-slate-800 px-4 py-2 rounded-full">
+                            <input type="checkbox" id="demoMode" class="w-4 h-4 text-sky-500 rounded bg-slate-800 border-slate-700 focus:ring-0 cursor-pointer">
+                            <label for="demoMode" class="text-xs font-semibold text-slate-300 cursor-pointer select-none">
+                                <span data-i18n="demo_mode">Demo X60</span> <span class="text-slate-500 font-normal" data-i18n="demo_desc">(45 sec)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 pt-2">
+                        <div class="glass-panel-sub p-4 rounded-xl space-y-3">
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="font-bold text-slate-300" data-i18n="carrier_freq">Frequenza Portante di Base</span>
+                                <span id="valCarrier" class="font-mono text-sky-400 font-bold">100.0 Hz</span>
+                            </div>
+                            <select id="selectCarrier" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-lg p-2 font-mono focus:border-sky-500 focus:outline-none">
+                                <option value="100" data-i18n="opt_100">100 Hz - Monroe Classic Grounding</option>
+                                <option value="136.1" data-i18n="opt_136">136.1 Hz - Frequenza Om / Terra</option>
+                                <option value="432" data-i18n="opt_432">432 Hz - Intonazione Armonica</option>
+                                <option value="528" data-i18n="opt_528">528 Hz - Solfeggio Miracoli</option>
+                            </select>
+                        </div>
+
+                        <div class="glass-panel-sub p-4 rounded-xl space-y-2">
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="font-bold text-slate-300" data-i18n="lfo_mod">Modulatore Onde Oceaniche</span>
+                                <span class="font-mono text-emerald-400 text-[11px] font-bold">0.08 Hz (12s)</span>
+                            </div>
+                            <p class="text-[11px] text-slate-400" data-i18n="lfo_desc">Modula dinamicamente il filtro simulando la risacca del mare.</p>
+                        </div>
+
+                        <div class="glass-panel-sub p-4 rounded-xl space-y-2">
+                            <div class="flex justify-between text-xs text-slate-300 mb-1">
+                                <span class="font-medium" data-i18n="vol_binaural">Volume Toni Binaurali</span>
+                                <span id="valTones" class="font-mono text-sky-400">100%</span>
+                            </div>
+                            <input type="range" id="volTones" min="0" max="1" step="0.01" value="1">
+                        </div>
+
+                        <div class="glass-panel-sub p-4 rounded-xl space-y-2">
+                            <div class="flex justify-between text-xs text-slate-300 mb-1">
+                                <span class="font-medium" data-i18n="vol_surf">Volume Surf Masking</span>
+                                <span id="valSurf" class="font-mono text-sky-400">100%</span>
+                            </div>
+                            <input type="range" id="volSurf" min="0" max="1" step="0.01" value="1">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tabExport" class="hidden space-y-6">
+                    <div class="p-4 rounded-xl bg-gradient-to-r from-amber-500/10 via-slate-900 to-sky-500/10 border border-amber-500/20">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="p-2 rounded-lg bg-amber-500/20 text-amber-400 font-bold text-xs uppercase tracking-wider" data-i18n="master_engine">Mastering Engine</span>
+                            <h3 class="text-base font-extrabold text-white" data-i18n="export_title">Generatore Master File ad Alta Risoluzione</h3>
+                        </div>
+                        <p class="text-xs text-slate-300 leading-relaxed" data-i18n="export_desc">
+                            Crea un file master broadcast non compresso (<strong class="text-amber-300">WAV 24-bit</strong>). Il motore offline esegue il rendering DSP a velocità hardware in pochi secondi.
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="glass-panel-sub p-4 rounded-xl space-y-2">
+                            <label class="text-xs font-bold text-slate-300 block" data-i18n="sample_rate">Frequenza Campionamento</label>
+                            <select id="exportSampleRate" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-lg p-2 font-mono focus:border-amber-500 focus:outline-none">
+                                <option value="48000" selected data-i18n="sr_48">48,000 Hz (Studio Master)</option>
+                                <option value="44100" data-i18n="sr_44">44,100 Hz (CD Standard)</option>
+                                <option value="96000" data-i18n="sr_96">96,000 Hz (Ultra Hi-Res)</option>
+                            </select>
+                        </div>
+                        <div class="glass-panel-sub p-4 rounded-xl space-y-2">
+                            <label class="text-xs font-bold text-slate-300 block" data-i18n="bit_depth">Profondità di Bit</label>
+                            <select id="exportBitDepth" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-lg p-2 font-mono focus:border-amber-500 focus:outline-none">
+                                <option value="24" selected data-i18n="bd_24">24-bit PCM (Standard)</option>
+                                <option value="32" data-i18n="bd_32">32-bit Float</option>
+                                <option value="16" data-i18n="bd_16">16-bit PCM</option>
+                            </select>
+                        </div>
+                        <div class="glass-panel-sub p-4 rounded-xl space-y-2">
+                            <label class="text-xs font-bold text-slate-300 block" data-i18n="duration">Durata Protocollo</label>
+                            <select id="exportDuration" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-lg p-2 font-mono focus:border-amber-500 focus:outline-none">
+                                <option value="2700" selected data-i18n="dur_45">45 Min (Protocollo Completo)</option>
+                                <option value="1800" data-i18n="dur_30">30 Min (Focus 10+12)</option>
+                                <option value="900" data-i18n="dur_15">15 Min (Breve)</option>
+                            </select>
+                            <span id="exportEstimatedSize" class="text-[10px] text-amber-400 font-mono block">Dimensione: ~742 MB</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-5 space-y-4">
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <div>
+                                <h4 class="text-sm font-bold text-white" data-i18n="render_title">Rendering e Download</h4>
+                                <p class="text-xs text-slate-400" data-i18n="render_desc">Genera i file in memoria senza intermediari cloud.</p>
+                            </div>
+                            <div class="flex flex-col gap-2 w-full sm:w-auto">
+                                <button id="btnRenderWav" class="w-full bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold py-2.5 px-6 rounded-xl transition-all border border-slate-700 flex items-center justify-center gap-2">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                                    <span data-i18n="btn_wav">WAV Singolo (Standard)</span>
+                                </button>
+                                <button id="btnAutopilot" class="w-full bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-black py-3.5 px-8 rounded-xl transition-all shadow-[0_0_25px_rgba(192,38,211,0.4)] flex items-center justify-center gap-2 transform hover:scale-105">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M11 2L2 14h7v8l9-12h-7L11 2z" /></svg>
+                                    <span data-i18n="btn_autopilot_export">AUTOPILOT BESTSELLER (WAV+MP3+DOCS)</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="renderProgressContainer" class="hidden space-y-2 pt-2 border-t border-slate-800">
+                            <div class="flex justify-between text-xs font-mono">
+                                <span id="renderStatusText" class="text-amber-400 animate-pulse">Elaborazione...</span>
+                                <span id="renderProgressText" class="text-white font-bold">0%</span>
+                            </div>
+                            <div class="w-full bg-slate-950 rounded-full h-2.5 overflow-hidden">
+                                <div id="renderProgressBar" class="bg-gradient-to-r from-amber-500 to-orange-400 h-full w-0 transition-all duration-100"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tabCommercial" class="hidden space-y-6">
+                    <div class="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+                        <h3 class="text-sm font-bold text-emerald-300 flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                            <span data-i18n="commercial_title">Asset di Vendita Pronti (Etsy/Gumroad)</span>
+                        </h3>
+                        <p class="text-xs text-slate-300 mt-1" data-i18n="commercial_desc">Copia e incolla la scheda tecnica e il certificato per massimizzare il valore del prodotto.</p>
+                    </div>
+
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <label class="text-xs font-bold text-slate-300" data-i18n="copy_title">Descrizione Prodotto Bestseller</label>
+                            <button id="btnCopyCopywriting" class="text-xs font-mono text-emerald-400 hover:text-emerald-300 flex items-center gap-1 bg-emerald-500/10 px-2.5 py-1 rounded border border-emerald-500/30">
+                                <span data-i18n="btn_copy">Copia Testo</span>
+                            </button>
+                        </div>
+                        <textarea id="txtCopywriting" rows="8" readonly class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs font-mono text-slate-300 focus:outline-none select-all"></textarea>
+                    </div>
+
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <label class="text-xs font-bold text-slate-300" data-i18n="cert_title">Certificato di Taratura Frequenze</label>
+                            <button id="btnCopyCert" class="text-xs font-mono text-sky-400 hover:text-sky-300 flex items-center gap-1 bg-sky-500/10 px-2.5 py-1 rounded border border-sky-500/30">
+                                <span data-i18n="btn_copy">Copia Testo</span>
+                            </button>
+                        </div>
+                        <textarea id="txtCert" rows="5" readonly class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs font-mono text-slate-400 focus:outline-none select-all"></textarea>
+                    </div>
+                </div>
+
+                <div id="tabRV" class="hidden space-y-6">
+                    <div class="p-4 rounded-xl bg-purple-500/10 border border-purple-500/20 flex flex-col md:flex-row justify-between items-center gap-4">
+                        <div class="flex-1">
+                            <h3 class="text-sm font-bold text-purple-300 flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/></svg>
+                                <span data-i18n="rv_title">Protocollo Ufficiale CRV</span>
+                            </h3>
+                            <p class="text-xs text-slate-300 mt-1 mb-4" data-i18n="rv_desc">Usa questa guida durante l'ascolto della traccia Master. Sincronizzati con le fasi.</p>
+                            <button id="btnAutopilotRV" class="w-full sm:w-auto bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black py-2.5 px-6 rounded-xl transition-all shadow-[0_0_20px_rgba(147,51,234,0.4)] flex items-center justify-center gap-2 transform hover:scale-105">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg>
+                                <span data-i18n="btn_autopilot_rv">AUTOPILOT REMOTE VIEWER</span>
+                            </button>
+                        </div>
+                        <div class="text-center bg-slate-900 border border-purple-500/30 p-2.5 rounded-xl shrink-0 flex flex-col items-center min-w-[130px] w-full md:w-auto">
+                            <div class="text-[9px] text-purple-400 uppercase font-bold mb-1">Target ID</div>
+                            <div id="rvTargetId" class="text-base font-mono font-black text-white tracking-widest transition-colors duration-300">----/----</div>
+                            <div class="flex gap-2 mt-1.5 w-full justify-center">
+                                <button id="btnNewTarget" class="text-[9px] px-2 py-0.5 rounded bg-slate-800 text-slate-300 hover:text-white" data-i18n="btn_new">Nuovo</button>
+                                <button id="btnRevealTarget" class="text-[9px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 font-bold" data-i18n="btn_reveal">Svela</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <!-- RV Steps 1-5 -->
+                        <div id="rvCard1" class="glass-panel-sub p-4 rounded-xl border-l-4 border-l-sky-500 transition-all duration-300">
+                            <div class="flex justify-between items-start mb-1">
+                                <h4 class="text-xs font-bold text-white" data-i18n="rv_s1_title">1. Preparazione & REBAL (Alpha)</h4>
+                                <span class="text-[10px] font-mono text-sky-400 bg-sky-500/10 px-2 py-0.5 rounded">00:00 - 05:00</span>
+                            </div>
+                            <p class="text-[11px] text-slate-400 mb-3" data-i18n="rv_s1_desc">Rilascia le tensioni nel "Resonant Energy Balloon". Ripeti: "Desidero espandere la percezione".</p>
+                            <div class="flex items-center gap-3 bg-slate-900/60 p-2 rounded-lg border border-slate-800">
+                                <button class="rv-play-btn text-white bg-sky-600 hover:bg-sky-500 p-2 rounded-full transition-colors flex-shrink-0" data-start="0" data-end="300" data-step="1">
+                                    <svg class="w-3 h-3 pointer-events-none" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" fill-rule="evenodd"></path></svg>
+                                </button>
+                                <span id="rvTime1" class="text-[10px] font-mono text-slate-400 w-8 text-right">00:00</span>
+                                <input type="range" id="rvSlider1" class="rv-slider flex-1 h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-sky-500" min="0" max="300" value="0" data-start="0" data-end="300">
+                            </div>
+                        </div>
+
+                        <div id="rvCard2" class="glass-panel-sub p-4 rounded-xl border-l-4 border-l-indigo-400 transition-all duration-300">
+                            <div class="flex justify-between items-start mb-1">
+                                <h4 class="text-xs font-bold text-white" data-i18n="rv_s2_title">2. Focus 10 (Theta)</h4>
+                                <span class="text-[10px] font-mono text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded">05:00 - 15:00</span>
+                            </div>
+                            <p class="text-[11px] text-slate-400 mb-3" data-i18n="rv_s2_desc">Corpo addormentato, mente sveglia. Concentrati sull'oscurità dietro le palpebre.</p>
+                            <div class="flex items-center gap-3 bg-slate-900/60 p-2 rounded-lg border border-slate-800">
+                                <button class="rv-play-btn text-white bg-indigo-600 hover:bg-indigo-500 p-2 rounded-full transition-colors flex-shrink-0" data-start="300" data-end="900" data-step="2">
+                                    <svg class="w-3 h-3 pointer-events-none" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" fill-rule="evenodd"></path></svg>
+                                </button>
+                                <span id="rvTime2" class="text-[10px] font-mono text-slate-400 w-8 text-right">00:00</span>
+                                <input type="range" id="rvSlider2" class="rv-slider flex-1 h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-500" min="300" max="900" value="300" data-start="300" data-end="900">
+                            </div>
+                        </div>
+
+                        <div id="rvCard3" class="glass-panel-sub p-4 rounded-xl border-l-4 border-l-purple-500 relative overflow-hidden transition-all duration-300">
+                            <div class="absolute right-0 top-0 bottom-0 w-1 bg-purple-500/20 animate-pulse"></div>
+                            <div class="flex justify-between items-start mb-1">
+                                <h4 class="text-xs font-bold text-white" data-i18n="rv_s3_title">3. Focus 12 & Acquisizione</h4>
+                                <span class="text-[10px] font-mono text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded">15:00 - 30:00</span>
+                            </div>
+                            <p class="text-[11px] text-slate-400 mb-3" data-i18n="rv_s3_desc">Visualizza il Target ID. Annota le prime impressioni (Gestalt). Non cercare di nominare l'oggetto.</p>
+                            <div class="flex items-center gap-3 bg-slate-900/60 p-2 rounded-lg border border-slate-800">
+                                <button class="rv-play-btn text-white bg-purple-600 hover:bg-purple-500 p-2 rounded-full transition-colors flex-shrink-0" data-start="900" data-end="1800" data-step="3">
+                                    <svg class="w-3 h-3 pointer-events-none" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" fill-rule="evenodd"></path></svg>
+                                </button>
+                                <span id="rvTime3" class="text-[10px] font-mono text-slate-400 w-8 text-right">00:00</span>
+                                <input type="range" id="rvSlider3" class="rv-slider flex-1 h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-purple-500" min="900" max="1800" value="900" data-start="900" data-end="1800">
+                            </div>
+                        </div>
+
+                        <div id="rvCard4" class="glass-panel-sub p-4 rounded-xl border-l-4 border-l-fuchsia-500 transition-all duration-300">
+                            <div class="flex justify-between items-start mb-1">
+                                <h4 class="text-xs font-bold text-white" data-i18n="rv_s4_title">4. Focus 15: Punto Zero</h4>
+                                <span class="text-[10px] font-mono text-fuchsia-400 bg-fuchsia-500/10 px-2 py-0.5 rounded">30:00 - 40:00</span>
+                            </div>
+                            <p class="text-[11px] text-slate-400 mb-3" data-i18n="rv_s4_desc">Tempo e spazio si annullano. Lascia che le informazioni fluiscano liberamente verso di te.</p>
+                            <div class="flex items-center gap-3 bg-slate-900/60 p-2 rounded-lg border border-slate-800">
+                                <button class="rv-play-btn text-white bg-fuchsia-600 hover:bg-fuchsia-500 p-2 rounded-full transition-colors flex-shrink-0" data-start="1800" data-end="2400" data-step="4">
+                                    <svg class="w-3 h-3 pointer-events-none" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" fill-rule="evenodd"></path></svg>
+                                </button>
+                                <span id="rvTime4" class="text-[10px] font-mono text-slate-400 w-8 text-right">00:00</span>
+                                <input type="range" id="rvSlider4" class="rv-slider flex-1 h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-fuchsia-500" min="1800" max="2400" value="1800" data-start="1800" data-end="2400">
+                            </div>
+                        </div>
+
+                        <div id="rvCard5" class="glass-panel-sub p-4 rounded-xl border-l-4 border-l-emerald-400 transition-all duration-300">
+                            <div class="flex justify-between items-start mb-1">
+                                <h4 class="text-xs font-bold text-white" data-i18n="rv_s5_title">5. Rientro & Grounding</h4>
+                                <span class="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">40:00 - 45:00</span>
+                            </div>
+                            <p class="text-[11px] text-slate-400 mb-3" data-i18n="rv_s5_desc">Muovi dita e mani. Al termine, apri gli occhi e trascrivi immediatamente ciò che hai percepito.</p>
+                            <div class="flex items-center gap-3 bg-slate-900/60 p-2 rounded-lg border border-slate-800">
+                                <button class="rv-play-btn text-white bg-emerald-600 hover:bg-emerald-500 p-2 rounded-full transition-colors flex-shrink-0" data-start="2400" data-end="2700" data-step="5">
+                                    <svg class="w-3 h-3 pointer-events-none" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" fill-rule="evenodd"></path></svg>
+                                </button>
+                                <span id="rvTime5" class="text-[10px] font-mono text-slate-400 w-8 text-right">00:00</span>
+                                <input type="range" id="rvSlider5" class="rv-slider flex-1 h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-emerald-500" min="2400" max="2700" value="2400" data-start="2400" data-end="2700">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Target Reveal Box -->
+                    <div id="targetRevealBox" class="hidden mt-2 p-1 rounded-xl bg-slate-900 border border-emerald-500/40 overflow-hidden transition-all duration-500 opacity-0 transform translate-y-4">
+                        <div class="bg-slate-950 rounded-lg overflow-hidden relative">
+                            <div class="absolute top-2 left-2 bg-emerald-500 text-slate-950 text-[9px] font-black uppercase px-2 py-1 rounded shadow-lg z-10 border border-emerald-300" data-i18n="rv_declassified">Target Declassificato</div>
+                            <img id="revealImg" src="" class="w-full h-48 object-cover opacity-80 hover:opacity-100 transition-opacity">
+                            <div class="p-4 border-t border-slate-800">
+                                <h4 id="revealTitle" class="text-base font-bold text-white mb-2">Target Title</h4>
+                                <div class="bg-slate-900 rounded p-3 border border-slate-800">
+                                    <span class="text-[9px] text-emerald-400 uppercase font-bold tracking-wider block mb-1" data-i18n="rv_gestalt">Gestalt / Sensazioni Primarie:</span>
+                                    <p id="revealGestalt" class="text-xs text-slate-300 font-mono"></p>
+                                </div>
+                                <p class="text-[10px] text-slate-500 mt-3 italic" data-i18n="rv_footer">Valuta il successo in base alle sensazioni grezze percepite (calore, acqua, forme), non al nome esatto dell'oggetto.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="toastContainer" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <script>
+        // --- MULTILINGUAL TRANSLATION ENGINE ---
+        const i18n = {
+            en: {
+                subtitle: "Binaural Acoustic Architecture &bull; Monroe Hemi-Sync Protocol",
+                dsp_active: 'DSP Audio Engine: <strong class="text-white">Active</strong>',
+                hi_res_badge: "HI-RES AUDIO CERTIFIED 24-BIT",
+                scope_title: "Stereo Phase Scope & Spectrum",
+                btn_lissajous: "Lissajous", btn_fft: "FFT Bars", phase_binaural: "BINAURAL STEREO",
+                active_phase: "Active Protocol Phase", standby: "Standby...",
+                left_ch: "Left (L)", right_ch: "Right (R)", delta_eye: "Ocular Delta",
+                protocol_title: '45-Min Protocol "Monroe Master"',
+                p_step1: "Alpha Induction (10 Hz).", p_step2: "Continuous Sweep to Focus 10 Theta (4 Hz).",
+                p_step3: "Focus 12 Expansion: Delta (1.5 Hz) + Gamma Subliminal Layer (40 Hz).",
+                p_step4: "Focus 15 Zero Point: Sub-Delta (0.5 Hz) with surf dominance.",
+                p_step5: "Vigilant Reentry with Sweep to Beta (15 Hz) and grounding.",
+                tab_console: "Playback Console", tab_export: "Hi-Res Export", tab_commercial: "Commercial Pack", tab_rv: "Remote Viewing Guide",
+                btn_start: "Start Live Session", btn_stop: "Stop", demo_mode: "Demo X60", demo_desc: "(45 sec)",
+                carrier_freq: "Base Carrier Frequency", opt_100: "100 Hz - Monroe Classic Grounding", opt_136: "136.1 Hz - Om / Earth Frequency", opt_432: "432 Hz - Harmonic Intonation", opt_528: "528 Hz - Miracle Solfeggio",
+                lfo_mod: "Ocean Waves Modulator", lfo_desc: "Dynamically modulates the filter simulating sea surf.",
+                vol_binaural: "Binaural Tones Volume", vol_surf: "Surf Masking Volume",
+                master_engine: "Mastering Engine", export_title: "High-Resolution Master File Generator",
+                export_desc: 'Create an uncompressed broadcast master file (<strong class="text-amber-300">WAV 24-bit</strong>). The offline engine renders DSP at hardware speed in seconds.',
+                sample_rate: "Sample Rate", sr_48: "48,000 Hz (Studio Master)", sr_44: "44,100 Hz (CD Standard)", sr_96: "96,000 Hz (Ultra Hi-Res)",
+                bit_depth: "Bit Depth", bd_24: "24-bit PCM (Standard)", bd_32: "32-bit Float", bd_16: "16-bit PCM",
+                duration: "Protocol Duration", dur_45: "45 Min (Full Protocol)", dur_30: "30 Min (Focus 10+12)", dur_15: "15 Min (Short)",
+                render_title: "Rendering and Download", render_desc: "Generates files in memory without cloud intermediaries.",
+                btn_wav: "Single WAV (Standard)", btn_autopilot_export: "BESTSELLER AUTOPILOT (WAV+MP3+DOCS)",
+                commercial_title: "Sales Assets Ready (Etsy/Gumroad)", commercial_desc: "Copy and paste the specs and certificate to maximize product value.",
+                copy_title: "Bestseller Product Description", cert_title: "Frequency Calibration Certificate", btn_copy: "Copy Text",
+                rv_title: "CRV Official Protocol", rv_desc: "Use this guide during Master track listening. Synchronize with phases.",
+                btn_autopilot_rv: "REMOTE VIEWER AUTOPILOT", btn_new: "New", btn_reveal: "Reveal",
+                rv_s1_title: "1. Prep & REBAL (Alpha)", rv_s1_desc: 'Release tensions in the "Resonant Energy Balloon". Repeat: "I desire to expand perception".',
+                rv_s2_title: "2. Focus 10 (Theta)", rv_s2_desc: "Body asleep, mind awake. Focus on the darkness behind closed eyelids.",
+                rv_s3_title: "3. Focus 12 & Acquisition", rv_s3_desc: "Visualize Target ID. Note raw impressions (Gestalt). Do not name the object.",
+                rv_s4_title: "4. Focus 15: Zero Point", rv_s4_desc: "Time and space collapse. Let information flow freely towards you.",
+                rv_s5_title: "5. Reentry & Grounding", rv_s5_desc: "Move fingers. At the end, open eyes and immediately transcribe your perceptions.",
+                rv_declassified: "Target Declassified", rv_gestalt: "Gestalt / Primary Sensations:", rv_footer: "Evaluate success based on raw sensations perceived (heat, water, shapes), not the exact object name.",
+                msg_resume: "Session resumed from specified point.", msg_start: "Live Protocol started. Put on your headphones.", msg_finish: "Protocol completed. Mind in waking state.", msg_autopilot_done: "Autopilot completed! The 3 bundle files have been downloaded.",
+                phase_1: "Preliminary Induction", phase_2: "Descent to Focus 10 (Mind Awake)", phase_3: "Focus 12 (Expanded Consciousness)", phase_4: "Focus 15 (Zero Point / Void)", phase_5: "Reentry / Regenerating Grounding",
+                marker_1: "Alpha Induction &rarr; Focus 10", marker_2: "Focus 10 Descent (Theta)", marker_3: "Focus 12 & Remote Viewing", marker_4: "Timeless Focus 15", marker_5: "Return to Vigilant Beta"
+            },
+            it: {
+                subtitle: "Binaural Acoustic Architecture &bull; Monroe Hemi-Sync Protocol",
+                dsp_active: 'DSP Audio Engine: <strong class="text-white">Active</strong>',
+                hi_res_badge: "HI-RES AUDIO CERTIFIED 24-BIT",
+                scope_title: "Stereo Phase Scope & Spectrum",
+                btn_lissajous: "Lissajous", btn_fft: "FFT Bars", phase_binaural: "BINAURAL STEREO",
+                active_phase: "Fase Protocollo Attiva", standby: "In Attesa...",
+                left_ch: "Sinistro (L)", right_ch: "Destro (R)", delta_eye: "Delta Oculare",
+                protocol_title: 'Protocollo 45 Minuti "Monroe Master"',
+                p_step1: "Induzione Alpha (10 Hz).", p_step2: "Discesa Sweep continua verso Focus 10 Theta (4 Hz).",
+                p_step3: "Focus 12 Espansione: Delta (1.5 Hz) + Layer Subliminale Gamma (40 Hz).",
+                p_step4: "Focus 15 Punto Zero: Sub-Delta (0.5 Hz) con dominanza surf.",
+                p_step5: "Rientro vigile con Sweep verso Beta (15 Hz) e grounding.",
+                tab_console: "Console di Riproduzione", tab_export: "Esportazione Hi-Res", tab_commercial: "Pacchetto Vendita", tab_rv: "Guida Remote Viewing",
+                btn_start: "Avvia Sessione Live", btn_stop: "Stop", demo_mode: "Demo X60", demo_desc: "(45 sec)",
+                carrier_freq: "Frequenza Portante di Base", opt_100: "100 Hz - Monroe Classic Grounding", opt_136: "136.1 Hz - Frequenza Om / Terra", opt_432: "432 Hz - Intonazione Armonica", opt_528: "528 Hz - Solfeggio Miracoli",
+                lfo_mod: "Modulatore Onde Oceaniche", lfo_desc: "Modula dinamicamente il filtro simulando la risacca del mare.",
+                vol_binaural: "Volume Toni Binaurali", vol_surf: "Volume Surf Masking",
+                master_engine: "Mastering Engine", export_title: "Generatore Master File ad Alta Risoluzione",
+                export_desc: 'Crea un file master broadcast non compresso (<strong class="text-amber-300">WAV 24-bit</strong>). Il motore offline esegue il rendering DSP a velocità hardware in pochi secondi.',
+                sample_rate: "Frequenza Campionamento", sr_48: "48,000 Hz (Studio Master)", sr_44: "44,100 Hz (CD Standard)", sr_96: "96,000 Hz (Ultra Hi-Res)",
+                bit_depth: "Profondità di Bit", bd_24: "24-bit PCM (Standard)", bd_32: "32-bit Float", bd_16: "16-bit PCM",
+                duration: "Durata Protocollo", dur_45: "45 Min (Protocollo Completo)", dur_30: "30 Min (Focus 10+12)", dur_15: "15 Min (Breve)",
+                render_title: "Rendering e Download", render_desc: "Genera i file in memoria senza intermediari cloud.",
+                btn_wav: "WAV Singolo (Standard)", btn_autopilot_export: "AUTOPILOT BESTSELLER (WAV+MP3+DOCS)",
+                commercial_title: "Asset di Vendita Pronti (Etsy/Gumroad)", commercial_desc: "Copia e incolla la scheda tecnica e il certificato per massimizzare il valore.",
+                copy_title: "Descrizione Prodotto Bestseller", cert_title: "Certificato di Taratura Frequenze", btn_copy: "Copia Testo",
+                rv_title: "Protocollo Ufficiale CRV", rv_desc: "Usa questa guida durante l'ascolto della traccia Master. Sincronizzati con le fasi.",
+                btn_autopilot_rv: "AUTOPILOT REMOTE VIEWER", btn_new: "Nuovo", btn_reveal: "Svela",
+                rv_s1_title: "1. Preparazione & REBAL (Alpha)", rv_s1_desc: 'Rilascia le tensioni nel "Resonant Energy Balloon". Ripeti: "Desidero espandere la percezione".',
+                rv_s2_title: "2. Focus 10 (Theta)", rv_s2_desc: "Corpo addormentato, mente sveglia. Concentrati sull'oscurità dietro le palpebre.",
+                rv_s3_title: "3. Focus 12 & Acquisizione", rv_s3_desc: "Visualizza il Target ID. Annota impressioni (Gestalt). Non dare un nome all'oggetto.",
+                rv_s4_title: "4. Focus 15: Punto Zero", rv_s4_desc: "Tempo e spazio perdono significato. Lascia che le info fluiscano liberamente verso di te.",
+                rv_s5_title: "5. Rientro & Grounding", rv_s5_desc: "Muovi dita e mani. Al termine, apri gli occhi e trascrivi subito ciò che hai percepito.",
+                rv_declassified: "Target Declassificato", rv_gestalt: "Gestalt / Sensazioni Primarie:", rv_footer: "Valuta il successo in base alle sensazioni grezze percepite (calore, acqua, forme), non al nome esatto dell'oggetto.",
+                msg_resume: "Sessione ripresa dal punto specificato.", msg_start: "Protocollo Live avviato. Indossa le cuffie.", msg_finish: "Protocollo completato con successo. Mente in stato vigile.", msg_autopilot_done: "Autopilot completato! I 3 file del pacchetto sono stati scaricati.",
+                phase_1: "Induzione Preliminare", phase_2: "Discesa Focus 10 (Mente Sveglia)", phase_3: "Focus 12 (Coscienza Espansa)", phase_4: "Focus 15 (Punto Zero / Vuoto)", phase_5: "Rientro / Grounding Rigenerante",
+                marker_1: "Induzione Alpha &rarr; Focus 10", marker_2: "Discesa Focus 10 (Theta)", marker_3: "Focus 12 & Remote Viewing", marker_4: "Focus 15 Senza Tempo", marker_5: "Ritorno in Beta Vigile"
+            },
+            es: {
+                subtitle: "Arquitectura Acústica Binaural &bull; Protocolo Hemi-Sync Monroe",
+                dsp_active: 'Motor de Audio DSP: <strong class="text-white">Activo</strong>',
+                hi_res_badge: "AUDIO HI-RES CERTIFICADO 24-BIT",
+                scope_title: "Fase Estéreo & Espectro",
+                btn_lissajous: "Lissajous", btn_fft: "Barras FFT", phase_binaural: "ESTÉREO BINAURAL",
+                active_phase: "Fase de Protocolo Activa", standby: "En Espera...",
+                left_ch: "Izquierdo (L)", right_ch: "Derecho (R)", delta_eye: "Delta Ocular",
+                protocol_title: 'Protocolo de 45 Minutos "Monroe Master"',
+                p_step1: "Inducción Alfa (10 Hz).", p_step2: "Descenso continuo hacia Enfoque 10 Theta (4 Hz).",
+                p_step3: "Expansión Enfoque 12: Delta (1.5 Hz) + Capa Subliminal Gamma (40 Hz).",
+                p_step4: "Enfoque 15 Punto Cero: Sub-Delta (0.5 Hz) con ruido de oleaje.",
+                p_step5: "Reentrada vigilante con barrido a Beta (15 Hz) y grounding.",
+                tab_console: "Consola de Reproducción", tab_export: "Exportación Hi-Res", tab_commercial: "Paquete Comercial", tab_rv: "Guía de Visión Remota",
+                btn_start: "Iniciar Sesión en Vivo", btn_stop: "Detener", demo_mode: "Modo Demo", demo_desc: "(45 seg)",
+                carrier_freq: "Frecuencia Portadora Base", opt_100: "100 Hz - Base Clásica Monroe", opt_136: "136.1 Hz - Frecuencia Om / Tierra", opt_432: "432 Hz - Entonación Armónica", opt_528: "528 Hz - Solfeo Milagroso",
+                lfo_mod: "Modulador de Olas Oceánicas", lfo_desc: "Modula dinámicamente el filtro simulando el mar.",
+                vol_binaural: "Volumen Tonos Binaurales", vol_surf: "Volumen Surf Masking",
+                master_engine: "Motor de Masterización", export_title: "Generador de Archivo Maestro de Alta Resolución",
+                export_desc: 'Crea un archivo maestro sin compresión (<strong class="text-amber-300">WAV 24-bit</strong>). El motor offline renderiza a velocidad de hardware en segundos.',
+                sample_rate: "Tasa de Muestreo", sr_48: "48,000 Hz (Máster de Estudio)", sr_44: "44,100 Hz (Estándar CD)", sr_96: "96,000 Hz (Ultra Hi-Res)",
+                bit_depth: "Profundidad de Bits", bd_24: "24-bit PCM (Estándar)", bd_32: "32-bit Float", bd_16: "16-bit PCM",
+                duration: "Duración del Protocolo", dur_45: "45 Min (Completo)", dur_30: "30 Min (Enfoque 10+12)", dur_15: "15 Min (Breve)",
+                render_title: "Renderizado y Descarga", render_desc: "Genera archivos en memoria sin intermediarios en la nube.",
+                btn_wav: "WAV Único (Estándar)", btn_autopilot_export: "AUTOPILOTO BESTSELLER (WAV+MP3+DOCS)",
+                commercial_title: "Recursos de Venta Listos", commercial_desc: "Copia y pega la ficha técnica para maximizar el valor.",
+                copy_title: "Descripción del Producto Bestseller", cert_title: "Certificado de Calibración de Frecuencias", btn_copy: "Copiar Texto",
+                rv_title: "Protocolo Oficial CRV", rv_desc: "Usa esta guía durante la escucha de la pista Maestra.",
+                btn_autopilot_rv: "AUTOPILOTO VISIÓN REMOTA", btn_new: "Nuevo", btn_reveal: "Revelar",
+                rv_s1_title: "1. Prep & REBAL (Alfa)", rv_s1_desc: 'Libera tensiones. Repite: "Deseo expandir la percepción".',
+                rv_s2_title: "2. Enfoque 10 (Theta)", rv_s2_desc: "Cuerpo dormido, mente despierta. Concéntrate en la oscuridad.",
+                rv_s3_title: "3. Enfoque 12 & Adquisición", rv_s3_desc: "Visualiza el Target ID. Anota impresiones (Gestalt). No nombres el objeto.",
+                rv_s4_title: "4. Enfoque 15: Punto Cero", rv_s4_desc: "El tiempo y el espacio pierden significado. Deja que la info fluya.",
+                rv_s5_title: "5. Reentrada & Grounding", rv_s5_desc: "Mueve los dedos. Al terminar, abre los ojos y transcribe de inmediato.",
+                rv_declassified: "Objetivo Desclasificado", rv_gestalt: "Gestalt / Sensaciones Primarias:", rv_footer: "Evalúa el éxito basándote en las sensaciones crudas percibidas, no en el nombre del objeto.",
+                msg_resume: "Sesión reanudada.", msg_start: "Protocolo iniciado. Ponte los auriculares.", msg_finish: "Protocolo completado con éxito.", msg_autopilot_done: "¡Autopiloto completado! 3 archivos descargados.",
+                phase_1: "Inducción Preliminar", phase_2: "Descenso Enfoque 10 (Mente Despierta)", phase_3: "Enfoque 12 (Conciencia Expandida)", phase_4: "Enfoque 15 (Punto Cero)", phase_5: "Reentrada y Grounding",
+                marker_1: "Inducción Alfa &rarr; Enfoque 10", marker_2: "Descenso Enfoque 10 (Theta)", marker_3: "Enfoque 12 & Visión Remota", marker_4: "Enfoque 15 Sin Tiempo", marker_5: "Retorno a Beta Vigilante"
+            },
+            fr: {
+                subtitle: "Architecture Acoustique Binaurale &bull; Protocole Hemi-Sync Monroe",
+                dsp_active: 'Moteur Audio DSP: <strong class="text-white">Actif</strong>',
+                hi_res_badge: "AUDIO HI-RES CERTIFIÉ 24-BIT",
+                scope_title: "Phase Stéréo & Spectre",
+                btn_lissajous: "Lissajous", btn_fft: "Barres FFT", phase_binaural: "STÉRÉO BINAURAL",
+                active_phase: "Phase du Protocole Active", standby: "En Attente...",
+                left_ch: "Gauche (L)", right_ch: "Droite (R)", delta_eye: "Delta Oculaire",
+                protocol_title: 'Protocole 45 Minutes "Monroe Master"',
+                p_step1: "Induction Alpha (10 Hz).", p_step2: "Descente continue vers Focus 10 Theta (4 Hz).",
+                p_step3: "Expansion Focus 12: Delta (1.5 Hz) + Couche Subliminale Gamma (40 Hz).",
+                p_step4: "Focus 15 Point Zéro: Sub-Delta (0.5 Hz) avec bruit de ressac.",
+                p_step5: "Rentrée vigilante avec balayage vers Beta (15 Hz) et ancrage.",
+                tab_console: "Console de Lecture", tab_export: "Exportation Hi-Res", tab_commercial: "Pack Commercial", tab_rv: "Guide Remote Viewing",
+                btn_start: "Démarrer la Session Live", btn_stop: "Arrêter", demo_mode: "Mode Démo", demo_desc: "(45 sec)",
+                carrier_freq: "Fréquence Porteuse de Base", opt_100: "100 Hz - Base Classique Monroe", opt_136: "136.1 Hz - Fréquence Om / Terre", opt_432: "432 Hz - Intonation Harmonique", opt_528: "528 Hz - Solfège Miracle",
+                lfo_mod: "Modulateur Vagues Océaniques", lfo_desc: "Module dynamiquement le filtre simulant le ressac marin.",
+                vol_binaural: "Volume Tons Binauraux", vol_surf: "Volume Surf Masking",
+                master_engine: "Moteur de Mastering", export_title: "Générateur de Fichier Maître Haute Résolution",
+                export_desc: 'Crée un fichier maître non compressé (<strong class="text-amber-300">WAV 24-bit</strong>). Rendu matériel en quelques secondes.',
+                sample_rate: "Taux d'Échantillonnage", sr_48: "48,000 Hz (Master Studio)", sr_44: "44,100 Hz (Standard CD)", sr_96: "96,000 Hz (Ultra Hi-Res)",
+                bit_depth: "Profondeur de Bits", bd_24: "24-bit PCM (Standard)", bd_32: "32-bit Float", bd_16: "16-bit PCM",
+                duration: "Durée du Protocole", dur_45: "45 Min (Complet)", dur_30: "30 Min (Focus 10+12)", dur_15: "15 Min (Court)",
+                render_title: "Rendu et Téléchargement", render_desc: "Génère les fichiers en mémoire sans cloud.",
+                btn_wav: "WAV Unique (Standard)", btn_autopilot_export: "AUTOPILOTE BESTSELLER (WAV+MP3+DOCS)",
+                commercial_title: "Ressources de Vente Prêtes", commercial_desc: "Copiez-collez pour maximiser la valeur.",
+                copy_title: "Description du Produit Bestseller", cert_title: "Certificat de Calibration des Fréquences", btn_copy: "Copier le Texte",
+                rv_title: "Protocole Officiel CRV", rv_desc: "Utilisez ce guide pendant l'écoute. Synchronisez-vous.",
+                btn_autopilot_rv: "AUTOPILOTE REMOTE VIEWER", btn_new: "Nouveau", btn_reveal: "Révéler",
+                rv_s1_title: "1. Préparation & REBAL (Alpha)", rv_s1_desc: 'Relâchez les tensions. Répétez: "Je désire étendre ma perception".',
+                rv_s2_title: "2. Focus 10 (Theta)", rv_s2_desc: "Corps endormi, esprit éveillé. Concentrez-vous sur l'obscurité.",
+                rv_s3_title: "3. Focus 12 & Acquisition", rv_s3_desc: "Visualisez le Target ID. Notez les impressions brutes. Ne nommez pas l'objet.",
+                rv_s4_title: "4. Focus 15: Point Zéro", rv_s4_desc: "Temps et espace perdent tout sens. Laissez l'info affluer.",
+                rv_s5_title: "5. Rentrée & Ancrage", rv_s5_desc: "Bougez les doigts. À la fin, ouvrez les yeux et transcrivez.",
+                rv_declassified: "Cible Déclassifiée", rv_gestalt: "Gestalt / Sensations Primaires:", rv_footer: "Évaluez le succès selon les sensations brutes, non le nom exact.",
+                msg_resume: "Session reprise.", msg_start: "Protocole démarré. Mettez le casque.", msg_finish: "Protocole terminé avec succès.", msg_autopilot_done: "Autopilote terminé! 3 fichiers téléchargés.",
+                phase_1: "Induction Préliminaire", phase_2: "Descente Focus 10 (Esprit Éveillé)", phase_3: "Focus 12 (Conscience Étendue)", phase_4: "Focus 15 (Point Zéro)", phase_5: "Rentrée / Ancrage Régénérant",
+                marker_1: "Induction Alpha &rarr; Focus 10", marker_2: "Descente Focus 10 (Theta)", marker_3: "Focus 12 & Remote Viewing", marker_4: "Focus 15 Sans Temps", marker_5: "Retour en Beta Vigilant"
+            },
+            de: {
+                subtitle: "Binaurale Akustische Architektur &bull; Monroe Hemi-Sync Protokoll",
+                dsp_active: 'DSP Audio Engine: <strong class="text-white">Aktiv</strong>',
+                hi_res_badge: "HI-RES AUDIO ZERTIFIZIERT 24-BIT",
+                scope_title: "Stereo-Phase & Spektrum",
+                btn_lissajous: "Lissajous", btn_fft: "FFT-Balken", phase_binaural: "BINAURALES STEREO",
+                active_phase: "Aktive Protokollphase", standby: "Standby...",
+                left_ch: "Links (L)", right_ch: "Rechts (R)", delta_eye: "Okulares Delta",
+                protocol_title: '45-Minuten-Protokoll "Monroe Master"',
+                p_step1: "Alpha-Induktion (10 Hz).", p_step2: "Kontinuierlicher Abstieg zu Fokus 10 Theta (4 Hz).",
+                p_step3: "Fokus 12 Expansion: Delta (1.5 Hz) + Gamma Subliminal-Schicht (40 Hz).",
+                p_step4: "Fokus 15 Nullpunkt: Sub-Delta (0.5 Hz) mit Meeresrauschen.",
+                p_step5: "Wachsame Rückkehr mit Sweep zu Beta (15 Hz) und Grounding.",
+                tab_console: "Wiedergabekonsole", tab_export: "Hi-Res Export", tab_commercial: "Verkaufspaket", tab_rv: "Remote Viewing Guide",
+                btn_start: "Live-Sitzung starten", btn_stop: "Stopp", demo_mode: "Demo-Modus", demo_desc: "(45 Sek)",
+                carrier_freq: "Basis-Trägerfrequenz", opt_100: "100 Hz - Klassisches Monroe-Grounding", opt_136: "136.1 Hz - Om / Erdfrequenz", opt_432: "432 Hz - Harmonische Intonation", opt_528: "528 Hz - Wunder-Solfeggio",
+                lfo_mod: "Ozeanwellen-Modulator", lfo_desc: "Moduliert den Filter dynamisch wie Meeresbrandung.",
+                vol_binaural: "Volumen Binaurale Töne", vol_surf: "Volumen Surf Masking",
+                master_engine: "Mastering-Engine", export_title: "Hochauflösender Master-Datei-Generator",
+                export_desc: 'Erstellt eine unkomprimierte Masterdatei (<strong class="text-amber-300">WAV 24-bit</strong>). Rendering in Hardware-Geschwindigkeit.',
+                sample_rate: "Abtastrate", sr_48: "48,000 Hz (Studio-Master)", sr_44: "44,100 Hz (CD-Standard)", sr_96: "96,000 Hz (Ultra Hi-Res)",
+                bit_depth: "Bittiefe", bd_24: "24-bit PCM (Standard)", bd_32: "32-bit Float", bd_16: "16-bit PCM",
+                duration: "Protokolldauer", dur_45: "45 Min (Komplett)", dur_30: "30 Min (Fokus 10+12)", dur_15: "15 Min (Kurz)",
+                render_title: "Rendering und Download", render_desc: "Generiert Dateien im Speicher ohne Cloud.",
+                btn_wav: "Einzel-WAV (Standard)", btn_autopilot_export: "BESTSELLER AUTOPILOT (WAV+MP3+DOCS)",
+                commercial_title: "Verkaufs-Assets (Etsy/Gumroad)", commercial_desc: "Kopieren und einfügen für maximalen Wert.",
+                copy_title: "Bestseller-Produktbeschreibung", cert_title: "Frequenz-Kalibrierungszertifikat", btn_copy: "Text kopieren",
+                rv_title: "Offizielles CRV-Protokoll", rv_desc: "Verwenden Sie diesen Leitfaden während des Master-Tracks.",
+                btn_autopilot_rv: "AUTOPILOT REMOTE VIEWER", btn_new: "Neu", btn_reveal: "Aufdecken",
+                rv_s1_title: "1. Vorbereitung & REBAL (Alpha)", rv_s1_desc: 'Spannungen abbauen. Wiederholen: "Ich möchte meine Wahrnehmung erweitern".',
+                rv_s2_title: "2. Fokus 10 (Theta)", rv_s2_desc: "Körper schläft, Geist wach. Auf die Dunkelheit konzentrieren.",
+                rv_s3_title: "3. Fokus 12 & Erfassung", rv_s3_desc: "Target ID visualisieren. Rohe Eindrücke (Gestalt) notieren. Objekt nicht benennen.",
+                rv_s4_title: "4. Fokus 15: Nullpunkt", rv_s4_desc: "Zeit und Raum verlieren an Bedeutung. Infos fließen lassen.",
+                rv_s5_title: "5. Rückkehr & Grounding", rv_s5_desc: "Finger bewegen. Augen öffnen und sofort aufschreiben.",
+                rv_declassified: "Ziel De-klassifiziert", rv_gestalt: "Gestalt / Primäre Empfindungen:", rv_footer: "Erfolg basiert auf rohen Empfindungen, nicht auf dem exakten Namen.",
+                msg_resume: "Sitzung fortgesetzt.", msg_start: "Protokoll gestartet. Kopfhörer aufsetzen.", msg_finish: "Protokoll erfolgreich abgeschlossen.", msg_autopilot_done: "Autopilot abgeschlossen! 3 Dateien heruntergeladen.",
+                phase_1: "Vorläufige Induktion", phase_2: "Abstieg Fokus 10 (Geist Wach)", phase_3: "Fokus 12 (Erweiterte Bewusstsein)", phase_4: "Fokus 15 (Nullpunkt / Leere)", phase_5: "Rückkehr / Regenerierendes Grounding",
+                marker_1: "Alpha-Induktion &rarr; Fokus 10", marker_2: "Abstieg Fokus 10 (Theta)", marker_3: "Fokus 12 & Remote Viewing", marker_4: "Zeitloser Fokus 15", marker_5: "Rückkehr zu wachsamen Beta"
+            },
+            pt: {
+                subtitle: "Arquitetura Acústica Binaural &bull; Protocolo Hemi-Sync Monroe",
+                dsp_active: 'Motor de Áudio DSP: <strong class="text-white">Ativo</strong>',
+                hi_res_badge: "ÁUDIO HI-RES CERTIFICADO 24-BIT",
+                scope_title: "Fase Estéreo & Espectro",
+                btn_lissajous: "Lissajous", btn_fft: "Barras FFT", phase_binaural: "ESTÉREO BINAURAL",
+                active_phase: "Fase de Protocolo Ativa", standby: "Em Espera...",
+                left_ch: "Esquerdo (L)", right_ch: "Direito (R)", delta_eye: "Delta Ocular",
+                protocol_title: 'Protocolo de 45 Minutos "Monroe Master"',
+                p_step1: "Indução Alfa (10 Hz).", p_step2: "Descida contínua para Foco 10 Theta (4 Hz).",
+                p_step3: "Expansão Foco 12: Delta (1.5 Hz) + Camada Subliminar Gamma (40 Hz).",
+                p_step4: "Foco 15 Ponto Zero: Sub-Delta (0.5 Hz) com ruído de onda.",
+                p_step5: "Reentrada vigilante com varredura para Beta (15 Hz) e grounding.",
+                tab_console: "Consola de Reprodução", tab_export: "Exportação Hi-Res", tab_commercial: "Pacote Comercial", tab_rv: "Guia de Visão Remota",
+                btn_start: "Iniciar Sessão ao Vivo", btn_stop: "Parar", demo_mode: "Modo Demo", demo_desc: "(45 seg)",
+                carrier_freq: "Frequência Portadora Base", opt_100: "100 Hz - Base Clássica Monroe", opt_136: "136.1 Hz - Frequência Om / Terra", opt_432: "432 Hz - Entonação Harmónica", opt_528: "528 Hz - Solfejo Milagroso",
+                lfo_mod: "Modulador de Ondas Oceânicas", lfo_desc: "Modula dinamicamente o filtro simulando o mar.",
+                vol_binaural: "Volume Tons Binaurais", vol_surf: "Volume Surf Masking",
+                master_engine: "Motor de Masterização", export_title: "Gerador de Ficheiro Mestre de Alta Resolução",
+                export_desc: 'Cria um ficheiro mestre sem compressão (<strong class="text-amber-300">WAV 24-bit</strong>). Renderização à velocidade de hardware em segundos.',
+                sample_rate: "Taxa de Amostragem", sr_48: "48,000 Hz (Master de Estúdio)", sr_44: "44,100 Hz (Padrão CD)", sr_96: "96,000 Hz (Ultra Hi-Res)",
+                bit_depth: "Profundidade de Bits", bd_24: "24-bit PCM (Padrão)", bd_32: "32-bit Float", bd_16: "16-bit PCM",
+                duration: "Duração do Protocolo", dur_45: "45 Min (Completo)", dur_30: "30 Min (Foco 10+12)", dur_15: "15 Min (Breve)",
+                render_title: "Renderização e Download", render_desc: "Gera ficheiros em memória sem nuvem.",
+                btn_wav: "WAV Único (Padrão)", btn_autopilot_export: "AUTOPILOTO BESTSELLER (WAV+MP3+DOCS)",
+                commercial_title: "Ativos de Venda Prontos", commercial_desc: "Copie e cole a ficha técnica para maximizar o valor.",
+                copy_title: "Descrição do Produto Bestseller", cert_title: "Certificado de Calibração de Frequências", btn_copy: "Copiar Texto",
+                rv_title: "Protocolo Oficial CRV", rv_desc: "Use este guia durante a faixa Mestre.",
+                btn_autopilot_rv: "AUTOPILOTO VISÃO REMOTA", btn_new: "Novo", btn_reveal: "Revelar",
+                rv_s1_title: "1. Prep & REBAL (Alfa)", rv_s1_desc: 'Liberte tensões. Repita: "Desejo expandir a perceção".',
+                rv_s2_title: "2. Foco 10 (Theta)", rv_s2_desc: "Corpo adormecido, mente desperta. Foque na escuridão.",
+                rv_s3_title: "3. Foco 12 & Aquisição", rv_s3_desc: "Visualize o Target ID. Anote impressões brutas. Não nomeie o objeto.",
+                rv_s4_title: "4. Foco 15: Ponto Zero", rv_s4_desc: "Tempo e espaço perdem significado. Deixe a info fluir.",
+                rv_s5_title: "5. Reentrada & Grounding", rv_s5_desc: "Mova os dedos. Ao terminar, abra os olhos e transcreva.",
+                rv_declassified: "Alvo Desclassificado", rv_gestalt: "Gestalt / Sensações Primárias:", rv_footer: "Avalie o sucesso com base nas sensações brutas percebidas, não no nome exato.",
+                msg_resume: "Sessão retomada.", msg_start: "Protocolo iniciado. Coloque os auscultadores.", msg_finish: "Protocolo concluído com sucesso.", msg_autopilot_done: "Autopiloto concluído! 3 ficheiros transferidos.",
+                phase_1: "Indução Preliminar", phase_2: "Descida Foco 10 (Mente Desperta)", phase_3: "Foco 12 (Consciência Expandida)", phase_4: "Foco 15 (Ponto Zero)", phase_5: "Reentrada / Grounding Regenerador",
+                marker_1: "Indução Alfa &rarr; Foco 10", marker_2: "Descida Foco 10 (Theta)", marker_3: "Foco 12 & Visão Remota", marker_4: "Foco 15 Sem Tempo", marker_5: "Regresso a Beta Vigilante"
+            },
+            pl: {
+                subtitle: "Architektura Akustyczna Binaural &bull; Protokół Hemi-Sync Monroe",
+                dsp_active: 'Silnik DSP: <strong class="text-white">Aktywny</strong>',
+                hi_res_badge: "CERTYFIKOWANE AUDIO HI-RES 24-BIT",
+                scope_title: "Faza Stereo i Spektrum",
+                btn_lissajous: "Lissajous", btn_fft: "Paski FFT", phase_binaural: "STEREO BINAURALNE",
+                active_phase: "Aktywna Faza Protokołu", standby: "Oczekiwanie...",
+                left_ch: "Lewy (L)", right_ch: "Prawy (R)", delta_eye: "Oczna Delta",
+                protocol_title: 'Protokół 45 Minut "Monroe Master"',
+                p_step1: "Indukcja Alfa (10 Hz).", p_step2: "Ciągłe zejście do Focus 10 Theta (4 Hz).",
+                p_step3: "Ekspansja Focus 12: Delta (1.5 Hz) + Warstwa Subliminalna Gamma (40 Hz).",
+                p_step4: "Focus 15 Punkt Zerowy: Sub-Delta (0.5 Hz) z szumem fal.",
+                p_step5: "Przebudzenie do Beta (15 Hz) i uziemienie.",
+                tab_console: "Konsola Odtwarzania", tab_export: "Eksport Hi-Res", tab_commercial: "Pakiet Handlowy", tab_rv: "Przewodnik Zdalnego Widzenia",
+                btn_start: "Rozpocznij Sesję Na Żywo", btn_stop: "Zatrzymaj", demo_mode: "Tryb Demo", demo_desc: "(45 sek)",
+                carrier_freq: "Częstotliwość Nośna", opt_100: "100 Hz - Klasyczne Uziemienie Monroe", opt_136: "136.1 Hz - Częstotliwość Om / Ziemi", opt_432: "432 Hz - Intonacja Harmoniczna", opt_528: "528 Hz - Solfeż Cudów",
+                lfo_mod: "Modulator Fal Oceanicznych", lfo_desc: "Dynamicznie moduluje filtr symulując szum morza.",
+                vol_binaural: "Głośność Tonów Binauralnych", vol_surf: "Głośność Surf Masking",
+                master_engine: "Silnik Masteringowy", export_title: "Generator Plików Master Wysokiej Rozdzielczości",
+                export_desc: 'Tworzy nieskompresowany plik master (<strong class="text-amber-300">WAV 24-bit</strong>). Szybkie renderowanie DSP.',
+                sample_rate: "Częstotliwość Próbkowania", sr_48: "48,000 Hz (Master Studio)", sr_44: "44,100 Hz (Standard CD)", sr_96: "96,000 Hz (Ultra Hi-Res)",
+                bit_depth: "Głębia Bitowa", bd_24: "24-bit PCM (Standard)", bd_32: "32-bit Float", bd_16: "16-bit PCM",
+                duration: "Czas Trwania", dur_45: "45 Min (Pełny)", dur_30: "30 Min (Focus 10+12)", dur_15: "15 Min (Krótki)",
+                render_title: "Renderowanie i Pobieranie", render_desc: "Generuje pliki w pamięci bez udziału chmury.",
+                btn_wav: "Pojedynczy WAV (Standard)", btn_autopilot_export: "AUTOPILOT BESTSELLER (WAV+MP3+DOCS)",
+                commercial_title: "Gotowe Materiały (Etsy/Gumroad)", commercial_desc: "Skopiuj i wklej certyfikat, aby zwiększyć wartość.",
+                copy_title: "Opis Produktu Bestseller", cert_title: "Certyfikat Kalibracji Częstotliwości", btn_copy: "Kopiuj Tekst",
+                rv_title: "Oficjalny Protokół CRV", rv_desc: "Użyj tego przewodnika podczas słuchania utworu Master.",
+                btn_autopilot_rv: "AUTOPILOT ZDALNEGO WIDZENIA", btn_new: "Nowy", btn_reveal: "Odkryj",
+                rv_s1_title: "1. Przygotowanie & REBAL (Alfa)", rv_s1_desc: 'Uwolnij napięcia. Powtarzaj: "Pragnę poszerzyć percepcję".',
+                rv_s2_title: "2. Focus 10 (Theta)", rv_s2_desc: "Ciało uśpione, umysł obudzony. Skup się na ciemności.",
+                rv_s3_title: "3. Focus 12 & Akwizycja", rv_s3_desc: "Wizualizuj Target ID. Zanotuj surowe wrażenia. Nie nazywaj obiektu.",
+                rv_s4_title: "4. Focus 15: Punkt Zerowy", rv_s4_desc: "Czas i przestrzeń znikają. Pozwól informacjom płynąć.",
+                rv_s5_title: "5. Powrót & Uziemienie", rv_s5_desc: "Poruszaj palcami. Następnie otwórz oczy i opisz wrażenia.",
+                rv_declassified: "Cel Odtajniony", rv_gestalt: "Gestalt / Pierwotne Odczucia:", rv_footer: "Oceniaj sukces na podstawie surowych wrażeń, a nie dokładnej nazwy obiektu.",
+                msg_resume: "Sesja wznowiona.", msg_start: "Protokół uruchomiony. Załóż słuchawki.", msg_finish: "Protokół zakończony pomyślnie.", msg_autopilot_done: "Autopilot zakończony! Pobrano 3 pliki.",
+                phase_1: "Indukcja Wstępna", phase_2: "Zejście do Focus 10 (Umysł Przebudzony)", phase_3: "Focus 12 (Rozszerzona Świadomość)", phase_4: "Focus 15 (Punkt Zerowy)", phase_5: "Powrót / Uziemienie",
+                marker_1: "Indukcja Alfa &rarr; Focus 10", marker_2: "Zejście Focus 10 (Theta)", marker_3: "Focus 12 & Zdalne Widzenie", marker_4: "Bezczasowy Focus 15", marker_5: "Powrót do Beta"
+            },
+            ja: {
+                subtitle: "バイノーラル音響アーキテクチャ &bull; モンロー・ヘミシンクプロトコル",
+                dsp_active: 'DSPオーディオエンジン：<strong class="text-white">アクティブ</strong>',
+                hi_res_badge: "ハイレゾオーディオ認証 24-BIT",
+                scope_title: "ステレオフェーズ＆スペクトラム",
+                btn_lissajous: "リサージュ", btn_fft: "FFTバー", phase_binaural: "バイノーラルステレオ",
+                active_phase: "アクティブプロトコルフェーズ", standby: "待機中...",
+                left_ch: "左 (L)", right_ch: "右 (R)", delta_eye: "眼球デルタ",
+                protocol_title: '45分プロトコル "モンロー・マスター"',
+                p_step1: "アルファ誘導 (10 Hz)。", p_step2: "フォーカス10・シータ (4 Hz) への継続的な降下。",
+                p_step3: "フォーカス12拡大：デルタ (1.5 Hz) + ガンマ・サブリミナル層 (40 Hz)。",
+                p_step4: "フォーカス15ゼロポイント：波の音を伴うサブデルタ (0.5 Hz)。",
+                p_step5: "ベータ (15 Hz) へのスイープとグラウンディングによる覚醒した帰還。",
+                tab_console: "再生コンソール", tab_export: "ハイレゾエクスポート", tab_commercial: "販売パッケージ", tab_rv: "リモートビューイングガイド",
+                btn_start: "ライブセッションを開始", btn_stop: "停止", demo_mode: "デモモード", demo_desc: "(45秒)",
+                carrier_freq: "基本キャリア周波数", opt_100: "100 Hz - クラシック・モンロー", opt_136: "136.1 Hz - オム / 地球の周波数", opt_432: "432 Hz - ハーモニック・イントネーション", opt_528: "528 Hz - 奇跡のソルフェジオ",
+                lfo_mod: "海の波モジュレーター", lfo_desc: "波の打ち寄せをシミュレートする動的フィルター。",
+                vol_binaural: "バイノーラルトーン音量", vol_surf: "サーフマスキング音量",
+                master_engine: "マスタリング・エンジン", export_title: "ハイレゾマスターファイルジェネレーター",
+                export_desc: '非圧縮のマスターファイルを作成 (<strong class="text-amber-300">WAV 24-bit</strong>)。ハードウェア速度でレンダリング。',
+                sample_rate: "サンプリングレート", sr_48: "48,000 Hz (スタジオマスター)", sr_44: "44,100 Hz (CD標準)", sr_96: "96,000 Hz (ウルトラハイレゾ)",
+                bit_depth: "ビット深度", bd_24: "24-bit PCM (標準)", bd_32: "32-bit Float", bd_16: "16-bit PCM",
+                duration: "プロトコルの長さ", dur_45: "45分 (完全)", dur_30: "30分 (フォーカス10+12)", dur_15: "15分 (短時間)",
+                render_title: "レンダリングとダウンロード", render_desc: "クラウドなしでメモリ内にファイルを生成します。",
+                btn_wav: "単一WAV (標準)", btn_autopilot_export: "ベストセラー・オートパイロット (WAV+MP3+DOCS)",
+                commercial_title: "販売アセット (Etsy/Gumroad)", commercial_desc: "製品価値を最大化する証明書とコピー。",
+                copy_title: "ベストセラー製品説明", cert_title: "周波数較正証明書", btn_copy: "テキストをコピー",
+                rv_title: "CRV公式プロトコル", rv_desc: "マスタートラックの聴取中に使用します。",
+                btn_autopilot_rv: "リモートビューア・オートパイロット", btn_new: "新規", btn_reveal: "公開",
+                rv_s1_title: "1. 準備とREBAL (アルファ)", rv_s1_desc: '緊張を解きます。「知覚を広げたい」と唱えます。',
+                rv_s2_title: "2. フォーカス10 (シータ)", rv_s2_desc: "体は眠り、心は起きている。暗闇に集中します。",
+                rv_s3_title: "3. フォーカス12と捕捉", rv_s3_desc: "Target IDを視覚化。生きた印象(ゲシュタルト)をメモします。対象の名前を付けないでください。",
+                rv_s4_title: "4. フォーカス15：ゼロポイント", rv_s4_desc: "時間と空間が意味を失います。情報を流し込みます。",
+                rv_s5_title: "5. 帰還とグラウンディング", rv_s5_desc: "指を動かします。最後に目を開けて転記します。",
+                rv_declassified: "機密解除ターゲット", rv_gestalt: "ゲシュタルト / 主要な感覚：", rv_footer: "正確な名前ではなく、知覚された生の感覚に基づいて成功を評価します。",
+                msg_resume: "セッションを再開しました。", msg_start: "プロトコルを開始しました。ヘッドホンを着用してください。", msg_finish: "プロトコルが正常に完了しました。", msg_autopilot_done: "オートパイロット完了！3つのファイルをダウンロードしました。",
+                phase_1: "予備誘導", phase_2: "フォーカス10への降下", phase_3: "フォーカス12 (意識の拡大)", phase_4: "フォーカス15 (ゼロポイント / 虚無)", phase_5: "帰還 / グラウンディング",
+                marker_1: "アルファ誘導 &rarr; フォーカス10", marker_2: "フォーカス10降下 (シータ)", marker_3: "フォーカス12 & リモートビューイング", marker_4: "時間のないフォーカス15", marker_5: "ベータへの帰還"
+            }
+        };
+
+        const rvTargetsData = {
+            en: [
+                { title: "Erupting Volcano (Iceland)", gestalt: "Extreme thermal energy, upward movement, pungent smell/sulfur, bright red glow, cone shape, rumbling sounds, dark rock." },
+                { title: "Giza Pyramid Complex", gestalt: "Massive solid structures, sharp edges, converging triangular forms, dry heat, lack of water, sand, ancient dominance, yellow/ocher color." },
+                { title: "Space Shuttle Launch", gestalt: "Immense kinetic force, accelerated vertical movement, fire, dense white smoke, cylindrical metallic structures, deafening noise, verticality." },
+                { title: "Arctic Iceberg", gestalt: "Cold and static mass, liquid environment, blinding blue and white colors, angular structure above, vast hidden mass below, moisture, deep silence." },
+                { title: "Niagara Falls", gestalt: "Continuous powerful downward water movement, mist, constant white noise, fluid forms, kinetic energy, white/blue/green color." },
+                { title: "Stonehenge (UK)", gestalt: "Rough porous stones, circular arrangement, damp/green grass, open structure exposed to sky, ancient feeling, solidity, radial geometry." }
+            ],
+            it: [
+                { title: "Vulcano in Eruzione (Islanda)", gestalt: "Energia termica estrema, movimento ascensionale, odore pungente/zolfo, bagliore rosso vivo, forma a cono o piramide tronca, suoni rombanti, roccia scura." },
+                { title: "Complesso Piramidale di Giza", gestalt: "Strutture massive e solide, spigoli vivi, forme triangolari convergenti, calore secco, assenza d'acqua, sabbia, imponenza antica, colore giallo/ocra." },
+                { title: "Lancio dello Space Shuttle", gestalt: "Forza cinetica immensa, movimento verticale accelerato, fuoco, fumo denso e bianco, strutture metalliche cilindriche, rumore assordante, verticalità." },
+                { title: "Iceberg nell'Oceano Artico", gestalt: "Massa fredda e statica, ambiente liquido, colori blu e bianco accecante, struttura spigolosa sopra, vasta massa nascosta sotto, umidità, silenzio profondo." },
+                { title: "Cascate del Niagara", gestalt: "Movimento d'acqua continuo e potente in discesa, vapore nebulizzato, rumore bianco costante, forme fluide, energia cinetica, colore bianco/azzurro/verde." },
+                { title: "Stonehenge (Regno Unito)", gestalt: "Pietre grezze e porose, disposizione circolare, prato umido/verde, struttura aperta esposta al cielo, sensazione di antico, solidità, geometria radiale." }
+            ],
+            es: [
+                { title: "Volcán en Erupción (Islandia)", gestalt: "Energía térmica extrema, movimiento ascendente, olor acre/azufre, brillo rojo brillante, forma de cono, sonidos retumbantes, roca oscura." },
+                { title: "Complejo Piramidal de Guiza", gestalt: "Estructuras macizas, bordes afilados, formas triangulares convergentes, calor seco, sin agua, arena, dominio antiguo, color amarillo/ocre." },
+                { title: "Lanzamiento del Transbordador Espacial", gestalt: "Inmensa fuerza cinética, movimiento vertical acelerado, fuego, humo blanco, cilindros metálicos, ruido ensordecedor." },
+                { title: "Iceberg en el Océano Ártico", gestalt: "Masa fría y estática, entorno líquido, azul y blanco cegador, estructura angular arriba, enorme masa oculta abajo, silencio." },
+                { title: "Cataratas del Niágara", gestalt: "Movimiento de agua continuo hacia abajo, neblina, ruido blanco constante, formas fluidas, energía cinética, color blanco/azul." },
+                { title: "Stonehenge (Reino Unido)", gestalt: "Piedras porosas, disposición circular, hierba húmeda, estructura abierta, sensación antigua, geometría radial." }
+            ],
+            fr: [
+                { title: "Volcan en Éruption (Islande)", gestalt: "Énergie thermique extrême, mouvement ascendant, odeur de soufre, lueur rouge vif, forme de cône, grondements, roche sombre." },
+                { title: "Complexe Pyramidal de Gizeh", gestalt: "Structures massives, arêtes vives, formes triangulaires, chaleur sèche, pas d'eau, sable, dominance ancienne, couleur jaune/ocre." },
+                { title: "Lancement de la Navette Spatiale", gestalt: "Force cinétique immense, mouvement vertical accéléré, feu, fumée blanche, cylindres métalliques, bruit assourdissant." },
+                { title: "Iceberg dans l'Océan Arctique", gestalt: "Masse froide et statique, environnement liquide, bleu et blanc aveuglant, structure angulaire, masse énorme cachée, silence." },
+                { title: "Chutes du Niagara", gestalt: "Mouvement d'eau continu vers le bas, brume, bruit blanc constant, formes fluides, énergie cinétique, couleur blanc/bleu." },
+                { title: "Stonehenge (Royaume-Uni)", gestalt: "Pierres poreuses, disposition circulaire, herbe humide, structure ouverte, sensation ancienne, géométrie radiale." }
+            ],
+            de: [
+                { title: "Ausbrechender Vulkan (Island)", gestalt: "Extreme thermische Energie, Aufwärtsbewegung, Schwefelgeruch, helles rotes Leuchten, Kegelform, Grollen, dunkles Gestein." },
+                { title: "Pyramiden von Gizeh", gestalt: "Massive Strukturen, scharfe Kanten, konvergierende Dreiecksformen, trockene Hitze, Sand, antike Dominanz, gelbe Farbe." },
+                { title: "Space Shuttle Start", gestalt: "Immense kinetische Kraft, beschleunigte Vertikalbewegung, Feuer, weißer Rauch, Metallzylinder, ohrenbetäubender Lärm." },
+                { title: "Arktischer Eisberg", gestalt: "Kalte Masse, flüssige Umgebung, blendendes Blau und Weiß, eckige Struktur, riesige verborgene Masse, Stille." },
+                { title: "Niagarafälle", gestalt: "Kontinuierliche Abwärtsbewegung von Wasser, Nebel, weißes Rauschen, fließende Formen, kinetische Energie, weiß/blau." },
+                { title: "Stonehenge (UK)", gestalt: "Raue Steine, kreisförmige Anordnung, feuchtes Gras, offene Struktur, antikes Gefühl, radiale Geometrie." }
+            ],
+            pt: [
+                { title: "Vulcão em Erupção (Islândia)", gestalt: "Energia térmica extrema, movimento ascendente, cheiro a enxofre, brilho vermelho vivo, forma de cone, estrondos, rocha escura." },
+                { title: "Complexo das Pirâmides de Gizé", gestalt: "Estruturas maciças, arestas vivas, formas triangulares, calor seco, areia, dominância antiga, cor amarela/ocre." },
+                { title: "Lançamento do Vaivém Espacial", gestalt: "Força cinética imensa, movimento vertical acelerado, fogo, fumo branco, cilindros metálicos, ruído ensurdecedor." },
+                { title: "Iceberg no Oceano Ártico", gestalt: "Massa fria e estática, ambiente líquido, azul e branco cegante, estrutura angular, enorme massa escondida, silêncio." },
+                { title: "Cataratas do Niágara", gestalt: "Movimento contínuo de água para baixo, névoa, ruído branco constante, formas fluidas, energia cinética, cor branco/azul." },
+                { title: "Stonehenge (Reino Unido)", gestalt: "Pedras porosas, disposição circular, erva húmida, estrutura aberta, sensação antiga, geometria radial." }
+            ],
+            pl: [
+                { title: "Erupcja Wulkanu (Islandia)", gestalt: "Ekstremalna energia cieplna, ruch w górę, zapach siarki, jasnoczerwony blask, kształt stożka, dudnienie, ciemna skała." },
+                { title: "Piramidy w Gizie", gestalt: "Masywne struktury, ostre krawędzie, trójkątne formy, suche ciepło, piasek, starożytna dominacja, żółty kolor." },
+                { title: "Start Wahadłowca", gestalt: "Ogromna siła kinetyczna, przyspieszony ruch pionowy, ogień, biały dym, metalowe cylindry, ogłuszający hałas." },
+                { title: "Góra Lodowa w Arktyce", gestalt: "Zimna masa, płynne środowisko, oślepiający niebieski i biały, kanciasta struktura, ogromna ukryta masa, cisza." },
+                { title: "Wodospad Niagara", gestalt: "Ciągły ruch wody w dół, mgła, stały biały szum, płynne formy, energia kinetyczna, biały/niebieski." },
+                { title: "Stonehenge (UK)", gestalt: "Szorstkie kamienie, układ kołowy, wilgotna trawa, otwarta struktura, starożytne uczucie, promienista geometria." }
+            ],
+            ja: [
+                { title: "噴火する火山 (アイスランド)", gestalt: "極端な熱エネルギー、上向きの動き、硫黄の匂い、明るい赤色の輝き、円錐形、地響き、暗い岩。" },
+                { title: "ギザのピラミッド", gestalt: "巨大な構造物、鋭いエッジ、収束する三角形の形、乾燥した熱、砂、古代の支配、黄色。" },
+                { title: "スペースシャトルの打ち上げ", gestalt: "巨大な運動エネルギー、加速する垂直方向の動き、火、白い煙、金属の円柱、耳をつんざくような騒音。" },
+                { title: "北極の氷山", gestalt: "冷たい塊、液体の環境、まばゆい青と白、角張った構造、巨大な隠れた塊、沈黙。" },
+                { title: "ナイアガラの滝", gestalt: "継続的な下向きの水の動き、霧、一定のホワイトノイズ、流動的な形、運動エネルギー、白/青。" },
+                { title: "ストーンヘンジ (英国)", gestalt: "粗い石、円形の配置、湿った草、開かれた構造、古代の感覚、放射状の幾何学。" }
+            ]
+        };
+
+        const targetImages = [
+            "https://images.unsplash.com/photo-1462332420958-a05d1e002413?auto=format&fit=crop&w=800&q=80",
+            "https://images.unsplash.com/photo-1539667468225-eebb663053e6?auto=format&fit=crop&w=800&q=80",
+            "https://images.unsplash.com/photo-1517976487492-5750f31559ce?auto=format&fit=crop&w=800&q=80",
+            "https://images.unsplash.com/photo-1518359737119-a1b7e6716035?auto=format&fit=crop&w=800&q=80",
+            "https://images.unsplash.com/photo-1433086966358-54859d0ed716?auto=format&fit=crop&w=800&q=80",
+            "https://images.unsplash.com/photo-1599839619722-39751411ea63?auto=format&fit=crop&w=800&q=80"
+        ];
+
+        let currentLang = 'it';
+        
+        function _t(key) {
+            return i18n[currentLang][key] || i18n['it'][key] || key;
+        }
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (i18n[lang] && i18n[lang][key]) {
+                    el.innerHTML = i18n[lang][key];
+                }
+            });
+            updateUI(false);
+            populateCommercialAssets();
+            if (currentTargetIndex !== -1) {
+                const target = rvTargetsData[currentLang][currentTargetIndex];
+                document.getElementById('revealTitle').innerText = target.title;
+                document.getElementById('revealGestalt').innerText = target.gestalt;
+            }
+        }
+
+        document.getElementById('langSelect').addEventListener('change', (e) => setLanguage(e.target.value));
+
+        // --- REAL-TIME AUDIO STATE ---
+        let audioCtx;
+        let isPlaying = false;
+        let animationFrameId;
+        let sessionStartTime = 0;
+        let globalOffsetSec = 0;
+        let durationReal = 45 * 60; // 45 minutes in seconds
+        let durationScaled = durationReal;
+        let isRVAutopilot = false;
+        
+        let masterGain, toneGain, surfGain;
+        let oscBaseL, oscBaseR, oscGammaL, oscGammaR;
+        let panBaseL, panBaseR, panGammaL, panGammaR;
+        let noiseSource, noiseFilter, noiseLfo, noiseLfoGain;
+        let analyserL, analyserR;
+
+        // UI References
+        const btnPlay = document.getElementById('btnPlay');
+        const btnStop = document.getElementById('btnStop');
+        const chkDemo = document.getElementById('demoMode');
+        const selectCarrier = document.getElementById('selectCarrier');
+        const valCarrier = document.getElementById('valCarrier');
+        const volTones = document.getElementById('volTones');
+        const volSurf = document.getElementById('volSurf');
+        
+        const canvas = document.getElementById('visualizerCanvas');
+        const canvasCtx = canvas.getContext('2d');
+        const viewScopeBtn = document.getElementById('viewScopeBtn');
+        const viewSpectrumBtn = document.getElementById('viewSpectrumBtn');
+        let currentVisMode = 'lissajous';
+
+        const tabControlsBtn = document.getElementById('tabControlsBtn');
+        const tabExportBtn = document.getElementById('tabExportBtn');
+        const tabCommercialBtn = document.getElementById('tabCommercialBtn');
+        const tabRVBtn = document.getElementById('tabRVBtn');
+        const tabControls = document.getElementById('tabControls');
+        const tabExport = document.getElementById('tabExport');
+        const tabCommercial = document.getElementById('tabCommercial');
+        const tabRV = document.getElementById('tabRV');
+
+        const exportSampleRate = document.getElementById('exportSampleRate');
+        const exportBitDepth = document.getElementById('exportBitDepth');
+        const exportDuration = document.getElementById('exportDuration');
+        const exportEstimatedSize = document.getElementById('exportEstimatedSize');
+        const btnRenderWav = document.getElementById('btnRenderWav');
+        const btnAutopilot = document.getElementById('btnAutopilot');
+        const renderProgressContainer = document.getElementById('renderProgressContainer');
+        const renderProgressBar = document.getElementById('renderProgressBar');
+        const renderProgressText = document.getElementById('renderProgressText');
+        const renderStatusText = document.getElementById('renderStatusText');
+
+        const TONE_MAX_GAIN = Math.pow(10, -22 / 20);
+        const SURF_MAX_GAIN = Math.pow(10, -12 / 20);
+        const GAMMA_MAX_GAIN = Math.pow(10, -32 / 20);
+
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `px-4 py-3 rounded-xl shadow-2xl text-xs font-semibold flex items-center gap-2 pointer-events-auto transition-all transform duration-300 translate-y-2 opacity-0 ${
+                type === 'success' ? 'bg-emerald-950/90 text-emerald-200 border border-emerald-500/40' :
+                type === 'amber' ? 'bg-amber-950/90 text-amber-200 border border-amber-500/40' :
+                type === 'purple' ? 'bg-purple-950/90 text-purple-200 border border-purple-500/40' :
+                'bg-slate-900/90 text-sky-200 border border-sky-500/40'
+            }`;
+            const icon = type === 'success' ? `<svg class="w-4 h-4 text-emerald-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>` : `<svg class="w-4 h-4 text-sky-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>`;
+            toast.innerHTML = `${icon}<span>${message}</span>`;
+            document.getElementById('toastContainer').appendChild(toast);
+            setTimeout(() => toast.classList.remove('translate-y-2', 'opacity-0'), 10);
+            setTimeout(() => {
+                toast.classList.add('translate-y-2', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        function createBrownNoiseBuffer(context, durationSeconds = 5) {
+            const bufferSize = context.sampleRate * durationSeconds;
+            const buffer = context.createBuffer(1, bufferSize, context.sampleRate);
+            const data = buffer.getChannelData(0);
+            let lastOut = 0.0;
+            for (let i = 0; i < bufferSize; i++) {
+                const white = Math.random() * 2 - 1;
+                data[i] = (lastOut + (0.02 * white)) / 1.02;
+                lastOut = data[i];
+                data[i] *= 3.5;
+            }
+            return buffer;
+        }
+
+        function initAudio() {
+            if (audioCtx) audioCtx.close();
+            const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+            audioCtx = new AudioContextClass();
+            masterGain = audioCtx.createGain(); masterGain.connect(audioCtx.destination); masterGain.gain.value = 1.0;
+            analyserL = audioCtx.createAnalyser(); analyserR = audioCtx.createAnalyser();
+            analyserL.fftSize = 1024; analyserR.fftSize = 1024;
+            toneGain = audioCtx.createGain(); toneGain.connect(masterGain); toneGain.gain.value = TONE_MAX_GAIN * volTones.value;
+            surfGain = audioCtx.createGain(); surfGain.connect(masterGain); surfGain.gain.value = SURF_MAX_GAIN * volSurf.value;
+            
+            oscBaseL = audioCtx.createOscillator(); oscBaseR = audioCtx.createOscillator();
+            oscGammaL = audioCtx.createOscillator(); oscGammaR = audioCtx.createOscillator();
+            oscBaseL.type = 'sine'; oscBaseR.type = 'sine'; oscGammaL.type = 'sine'; oscGammaR.type = 'sine';
+            
+            panBaseL = audioCtx.createStereoPanner(); panBaseR = audioCtx.createStereoPanner();
+            panGammaL = audioCtx.createStereoPanner(); panGammaR = audioCtx.createStereoPanner();
+            panBaseL.pan.value = -1.0; panBaseR.pan.value = 1.0; panGammaL.pan.value = -1.0; panGammaR.pan.value = 1.0;
+            
+            panBaseL.connect(analyserL); panBaseR.connect(analyserR);
+            oscBaseL.connect(panBaseL).connect(toneGain); oscBaseR.connect(panBaseR).connect(toneGain);
+            
+            const gammaGainL = audioCtx.createGain(); const gammaGainR = audioCtx.createGain();
+            gammaGainL.gain.value = GAMMA_MAX_GAIN; gammaGainR.gain.value = GAMMA_MAX_GAIN;
+            oscGammaL.connect(gammaGainL).connect(panGammaL).connect(toneGain);
+            oscGammaR.connect(gammaGainR).connect(panGammaR).connect(toneGain);
+            
+            noiseSource = audioCtx.createBufferSource(); noiseSource.buffer = createBrownNoiseBuffer(audioCtx, 6); noiseSource.loop = true;
+            noiseFilter = audioCtx.createBiquadFilter(); noiseFilter.type = 'lowpass'; noiseFilter.frequency.value = 280; noiseFilter.Q.value = 0.7;
+            noiseLfo = audioCtx.createOscillator(); noiseLfo.frequency.value = 0.08;
+            noiseLfoGain = audioCtx.createGain(); noiseLfoGain.gain.value = 120;
+            noiseLfo.connect(noiseLfoGain).connect(noiseFilter.frequency);
+            noiseSource.connect(noiseFilter).connect(surfGain);
+        }
+
+        function getInterp(t, points) {
+            if (t <= points[0][0]) return points[0][1];
+            if (t >= points[points.length-1][0]) return points[points.length-1][1];
+            for(let i=0; i<points.length-1; i++) {
+                if (t >= points[i][0] && t <= points[i+1][0]) {
+                    let p1 = points[i]; let p2 = points[i+1];
+                    let ratio = (t - p1[0]) / (p2[0] - p1[0]);
+                    return p1[1] + ratio * (p2[1] - p1[1]);
+                }
+            }
+            return 0;
+        }
+
+        function scheduleProtocol(ctx, durationSec, carrierBase, isOffline = false, startOffsetSec = 0) {
+            const scale = durationSec / 2700;
+            const now = ctx.currentTime;
+            const left = isOffline ? ctx.oscBaseL : oscBaseL; const right = isOffline ? ctx.oscBaseR : oscBaseR;
+            const gL = isOffline ? ctx.oscGammaL : oscGammaL; const gR = isOffline ? ctx.oscGammaR : oscGammaR;
+            const tGain = isOffline ? ctx.toneGain : toneGain; const sGain = isOffline ? ctx.surfGain : surfGain;
+
+            const volTPoints = [[0,0], [180, TONE_MAX_GAIN], [2580, TONE_MAX_GAIN], [2700, 0]];
+            const volSPoints = [[0,0], [180, SURF_MAX_GAIN], [2580, SURF_MAX_GAIN], [2700, 0]];
+            const freqLPoints = [[0, carrierBase], [300, carrierBase], [900, carrierBase*0.9], [2400, carrierBase*0.9], [2700, carrierBase*1.2]];
+            const freqRPoints = [[0, carrierBase+10], [300, carrierBase+10], [900, (carrierBase*0.9)+4], [1800, (carrierBase*0.9)+1.5], [2400, (carrierBase*0.9)+0.5], [2700, (carrierBase*1.2)+15]];
+            const gammaPoints = [[0,0], [899,0], [900,1], [2400,1], [2401,0], [2700,0]];
+
+            const initVolT = getInterp(startOffsetSec, volTPoints) * (isOffline ? 1 : volTones.value);
+            const initVolS = getInterp(startOffsetSec, volSPoints) * (isOffline ? 1 : volSurf.value);
+            const initFreqL = getInterp(startOffsetSec, freqLPoints);
+            const initFreqR = getInterp(startOffsetSec, freqRPoints);
+            const initGamma = getInterp(startOffsetSec, gammaPoints) >= 1;
+
+            tGain.gain.setValueAtTime(initVolT, now); sGain.gain.setValueAtTime(initVolS, now);
+            left.frequency.setValueAtTime(initFreqL, now); right.frequency.setValueAtTime(initFreqR, now);
+
+            if (initGamma) { gL.frequency.setValueAtTime(200, now); gR.frequency.setValueAtTime(240, now); gL.start(now); gR.start(now); }
+
+            function scheduleParam(param, points, multiplier = 1) {
+                for(let p of points) {
+                    if (p[0] > startOffsetSec) {
+                        const realTime = now + ((p[0] - startOffsetSec) * scale);
+                        param.linearRampToValueAtTime(p[1] * multiplier, realTime);
+                    }
+                }
+            }
+
+            scheduleParam(tGain.gain, volTPoints, isOffline ? 1 : volTones.value);
+            scheduleParam(sGain.gain, volSPoints, isOffline ? 1 : volSurf.value);
+            scheduleParam(left.frequency, freqLPoints);
+            scheduleParam(right.frequency, freqRPoints);
+
+            let gammaRunning = initGamma;
+            for(let p of gammaPoints) {
+                if (p[0] > startOffsetSec) {
+                    const realTime = now + ((p[0] - startOffsetSec) * scale);
+                    if (p[1] === 1 && !gammaRunning) {
+                        gL.frequency.setValueAtTime(200, realTime); gR.frequency.setValueAtTime(240, realTime);
+                        gL.start(realTime); gR.start(realTime); gammaRunning = true;
+                    } else if (p[1] === 0 && gammaRunning) {
+                        gL.stop(realTime); gR.stop(realTime); gammaRunning = false;
+                    }
+                }
+            }
+
+            left.start(now); right.start(now);
+            if (isOffline) { ctx.noiseSource.start(now); ctx.noiseLfo.start(now); } 
+            else { noiseSource.start(now); noiseLfo.start(now); }
+
+            const endTime = now + ((2700 - startOffsetSec) * scale);
+            left.stop(endTime); right.stop(endTime);
+            if (isOffline) { ctx.noiseSource.stop(endTime); ctx.noiseLfo.stop(endTime); } 
+            else { noiseSource.stop(endTime); noiseLfo.stop(endTime); }
+        }
+
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60);
+            const s = Math.floor(seconds % 60);
+            return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        }
+
+        function getLogicalTime() {
+            if (!isPlaying || !audioCtx) return globalOffsetSec;
+            const elapsedReal = audioCtx.currentTime - sessionStartTime;
+            const multiplier = chkDemo.checked ? 60 : 1;
+            return globalOffsetSec + (elapsedReal * multiplier);
+        }
+
+        function updateUI(forceReset = false) {
+            let logicalElapsedSeconds = forceReset ? 0 : getLogicalTime();
+            if (logicalElapsedSeconds > durationReal) logicalElapsedSeconds = durationReal;
+
+            const logicalElapsedMinutes = logicalElapsedSeconds / 60;
+            const progressPct = Math.min(100, (logicalElapsedSeconds / durationReal) * 100);
+            document.getElementById('progressBar').style.width = `${progressPct}%`;
+            document.getElementById('timeCurrent').innerText = formatTime(logicalElapsedSeconds);
+            document.getElementById('timeTotal').innerText = formatTime(durationReal);
+
+            const rvSteps = [
+                { id: 1, start: 0, end: 300 }, { id: 2, start: 300, end: 900 },
+                { id: 3, start: 900, end: 1800 }, { id: 4, start: 1800, end: 2400 }, { id: 5, start: 2400, end: 2700 }
+            ];
+
+            rvSteps.forEach(step => {
+                const slider = document.getElementById(`rvSlider${step.id}`);
+                const timeLabel = document.getElementById(`rvTime${step.id}`);
+                const card = document.getElementById(`rvCard${step.id}`);
+                const btn = card.querySelector('.rv-play-btn');
+
+                if (logicalElapsedSeconds < step.start) {
+                    if (!forceReset && slider.dataset.dragging !== "true") slider.value = step.start;
+                    timeLabel.innerText = "00:00"; card.classList.remove('ring-2', 'ring-purple-500', 'shadow-lg');
+                    btn.innerHTML = `<svg class="w-3 h-3 pointer-events-none" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg>`;
+                } else if (logicalElapsedSeconds > step.end) {
+                    if (!forceReset && slider.dataset.dragging !== "true") slider.value = step.end;
+                    timeLabel.innerText = formatTime(step.end - step.start); card.classList.remove('ring-2', 'ring-purple-500', 'shadow-lg');
+                    btn.innerHTML = `<svg class="w-3 h-3 pointer-events-none" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg>`;
+                } else {
+                    if (!forceReset && slider.dataset.dragging !== "true") slider.value = logicalElapsedSeconds;
+                    timeLabel.innerText = formatTime(logicalElapsedSeconds - step.start); card.classList.add('ring-2', 'ring-purple-500', 'shadow-lg');
+                    if (isPlaying) { btn.innerHTML = `<svg class="w-3 h-3 pointer-events-none" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>`; } 
+                    else { btn.innerHTML = `<svg class="w-3 h-3 pointer-events-none" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg>`; }
+                }
+            });
+
+            if (progressPct >= 100 && isPlaying) {
+                stopProtocol();
+                if (isRVAutopilot) {
+                    document.getElementById('btnRevealTarget').click();
+                    isRVAutopilot = false;
+                } else {
+                    showToast(_t("msg_finish"), "success");
+                }
+                return;
+            }
+
+            const carrier = parseFloat(selectCarrier.value);
+            let phase = "", waveBadge = "", freqL = 0, freqR = 0, delta = 0, marker = "";
+
+            if (logicalElapsedMinutes < 5) {
+                phase = _t('phase_1'); waveBadge = "ALPHA (10 Hz)";
+                freqL = carrier; freqR = carrier + 10; delta = 10.0; marker = _t('marker_1');
+            } else if (logicalElapsedMinutes < 15) {
+                phase = _t('phase_2'); waveBadge = "THETA CHIRP (10 &rarr; 4 Hz)";
+                const p = (logicalElapsedMinutes - 5) / 10;
+                freqL = carrier - ((carrier * 0.1) * p); const currentDelta = 10 - (6 * p);
+                freqR = freqL + currentDelta; delta = currentDelta; marker = _t('marker_2');
+            } else if (logicalElapsedMinutes < 30) {
+                phase = _t('phase_3'); waveBadge = "DELTA (1.5 Hz) + GAMMA (40 Hz)";
+                freqL = carrier * 0.9; freqR = (carrier * 0.9) + 1.5; delta = 1.5; marker = _t('marker_3');
+            } else if (logicalElapsedMinutes < 40) {
+                phase = _t('phase_4'); waveBadge = "SUB-DELTA (0.5 Hz)";
+                freqL = carrier * 0.9; freqR = (carrier * 0.9) + 0.5; delta = 0.5; marker = _t('marker_4');
+            } else {
+                phase = _t('phase_5'); waveBadge = "BETA (0.5 &rarr; 15 Hz)";
+                const p = (logicalElapsedMinutes - 40) / 5;
+                freqL = (carrier * 0.9) + ((carrier * 0.3) * p); const currentDelta = 0.5 + (14.5 * p);
+                freqR = freqL + currentDelta; delta = currentDelta; marker = _t('marker_5');
+            }
+
+            document.getElementById('displayPhase').innerText = forceReset ? _t('standby') : phase;
+            document.getElementById('badgeWave').innerHTML = forceReset ? "STANDBY" : waveBadge;
+            document.getElementById('displayFreqL').innerText = forceReset ? "-- Hz" : freqL.toFixed(1) + ' Hz';
+            document.getElementById('displayFreqR').innerText = forceReset ? "-- Hz" : freqR.toFixed(1) + ' Hz';
+            document.getElementById('displayDelta').innerText = forceReset ? "-- Hz" : delta.toFixed(2) + ' Hz';
+            document.getElementById('phaseTimelineMarker').innerHTML = marker;
+            document.getElementById('scopeOffset').innerText = forceReset ? "-- Hz" : delta.toFixed(1) + ' Hz';
+
+            renderVisualizer();
+            if (isPlaying) animationFrameId = requestAnimationFrame(() => updateUI());
+        }
+
+        function renderVisualizer() {
+            const width = canvas.width; const height = canvas.height;
+            canvasCtx.fillStyle = '#030712'; canvasCtx.fillRect(0, 0, width, height);
+            if (!analyserL || !analyserR) return;
+
+            if (currentVisMode === 'lissajous') {
+                const bufferLength = analyserL.fftSize;
+                const dataArrayL = new Uint8Array(bufferLength); const dataArrayR = new Uint8Array(bufferLength);
+                analyserL.getByteTimeDomainData(dataArrayL); analyserR.getByteTimeDomainData(dataArrayR);
+
+                canvasCtx.strokeStyle = 'rgba(56, 189, 248, 0.08)'; canvasCtx.lineWidth = 1; canvasCtx.beginPath();
+                canvasCtx.arc(width / 2, height / 2, 70, 0, Math.PI * 2); canvasCtx.arc(width / 2, height / 2, 40, 0, Math.PI * 2);
+                canvasCtx.moveTo(width / 2, 0); canvasCtx.lineTo(width / 2, height);
+                canvasCtx.moveTo(0, height / 2); canvasCtx.lineTo(width, height / 2); canvasCtx.stroke();
+
+                canvasCtx.lineWidth = 2; canvasCtx.strokeStyle = '#38bdf8'; canvasCtx.shadowBlur = 10; canvasCtx.shadowColor = 'rgba(56, 189, 248, 0.7)';
+                canvasCtx.beginPath();
+                for (let i = 0; i < bufferLength; i += 2) {
+                    const xNorm = (dataArrayL[i] - 128) / 128.0; const yNorm = (dataArrayR[i] - 128) / 128.0;
+                    const x = (width / 2) + (xNorm * 110); const y = (height / 2) + (yNorm * 90);
+                    if (i === 0) canvasCtx.moveTo(x, y); else canvasCtx.lineTo(x, y);
+                }
+                canvasCtx.stroke(); canvasCtx.shadowBlur = 0;
+            } else {
+                const bufferLength = analyserL.frequencyBinCount;
+                const dataArray = new Uint8Array(bufferLength); analyserL.getByteFrequencyData(dataArray);
+                const barWidth = (width / 64) * 2; let x = 0;
+                for (let i = 0; i < 64; i++) {
+                    const barHeight = (dataArray[i] / 255) * height;
+                    const gradient = canvasCtx.createLinearGradient(0, height, 0, height - barHeight);
+                    gradient.addColorStop(0, '#38bdf8'); gradient.addColorStop(1, '#818cf8');
+                    canvasCtx.fillStyle = gradient; canvasCtx.fillRect(x, height - barHeight, barWidth - 2, barHeight);
+                    x += barWidth;
+                }
+            }
+        }
+
+        function playFromOffset(sec) {
+            if (isPlaying) { audioCtx.close(); cancelAnimationFrame(animationFrameId); isPlaying = false; }
+            globalOffsetSec = sec; startProtocol();
+        }
+
+        function pauseProtocol() {
+            if (!isPlaying) return;
+            globalOffsetSec = getLogicalTime(); isPlaying = false; audioCtx.close(); cancelAnimationFrame(animationFrameId);
+            document.body.classList.remove('is-playing');
+            btnPlay.innerHTML = `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg> <span data-i18n="btn_start">${_t("btn_start")}</span>`;
+            btnPlay.classList.add('play-ring'); updateUI();
+        }
+
+        function startProtocol() {
+            initAudio();
+            const carrier = parseFloat(selectCarrier.value); const multiplier = chkDemo.checked ? (1 / 60) : 1;
+            durationScaled = durationReal * multiplier;
+            scheduleProtocol(audioCtx, durationReal * multiplier, carrier, false, globalOffsetSec);
+            isPlaying = true; sessionStartTime = audioCtx.currentTime;
+            document.body.classList.add('is-playing');
+            btnPlay.innerHTML = `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>`;
+            btnPlay.classList.remove('play-ring', 'opacity-50', 'cursor-not-allowed');
+            btnStop.disabled = false; btnStop.classList.remove('opacity-50', 'cursor-not-allowed');
+            chkDemo.disabled = true; selectCarrier.disabled = true;
+            showToast(globalOffsetSec > 0 ? _t("msg_resume") : _t("msg_start"), "info");
+            updateUI();
+        }
+
+        function stopProtocol() {
+            if (audioCtx) audioCtx.close();
+            isPlaying = false; globalOffsetSec = 0; isRVAutopilot = false; cancelAnimationFrame(animationFrameId);
+            document.body.classList.remove('is-playing');
+            btnPlay.innerHTML = `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg> <span data-i18n="btn_start">${_t("btn_start")}</span>`;
+            btnPlay.classList.remove('opacity-50', 'cursor-not-allowed'); btnPlay.classList.add('play-ring');
+            btnStop.disabled = true; btnStop.classList.add('opacity-50', 'cursor-not-allowed');
+            chkDemo.disabled = false; selectCarrier.disabled = false;
+            canvasCtx.fillStyle = '#030712'; canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+            updateUI(true);
+        }
+
+        function audioBufferToWav(buffer, opt = {}) {
+            const numChannels = buffer.numberOfChannels; const sampleRate = buffer.sampleRate;
+            const bitDepth = opt.bitDepth || 24; const isFloat = opt.float32 || (bitDepth === 32);
+            const format = isFloat ? 3 : 1; const bytesPerSample = bitDepth / 8;
+            const blockAlign = numChannels * bytesPerSample; const dataLength = buffer.length * blockAlign;
+            const bufferLength = 44 + dataLength;
+            const arrayBuffer = new ArrayBuffer(bufferLength); const view = new DataView(arrayBuffer);
+            function writeString(offset, str) { for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i)); }
+            writeString(0, 'RIFF'); view.setUint32(4, 36 + dataLength, true); writeString(8, 'WAVE');
+            writeString(12, 'fmt '); view.setUint32(16, 16, true); view.setUint16(20, format, true);
+            view.setUint16(22, numChannels, true); view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * blockAlign, true); view.setUint16(32, blockAlign, true); view.setUint16(34, bitDepth, true);
+            writeString(36, 'data'); view.setUint32(40, dataLength, true);
+            let offset = 44; const leftChannel = buffer.getChannelData(0); const rightChannel = buffer.getChannelData(1);
+            for (let i = 0; i < buffer.length; i++) {
+                let sL = Math.max(-1, Math.min(1, leftChannel[i]));
+                if (bitDepth === 24) { const intVal = sL < 0 ? Math.floor(sL * 0x800000) : Math.floor(sL * 0x7FFFFF); view.setUint8(offset, intVal & 0xFF); view.setUint8(offset + 1, (intVal >> 8) & 0xFF); view.setUint8(offset + 2, (intVal >> 16) & 0xFF); offset += 3; } 
+                else if (bitDepth === 32) { view.setFloat32(offset, sL, true); offset += 4; }
+                let sR = Math.max(-1, Math.min(1, rightChannel[i]));
+                if (bitDepth === 24) { const intVal = sR < 0 ? Math.floor(sR * 0x800000) : Math.floor(sR * 0x7FFFFF); view.setUint8(offset, intVal & 0xFF); view.setUint8(offset + 1, (intVal >> 8) & 0xFF); view.setUint8(offset + 2, (intVal >> 16) & 0xFF); offset += 3; } 
+                else if (bitDepth === 32) { view.setFloat32(offset, sR, true); offset += 4; }
+            }
+            return new Blob([arrayBuffer], { type: 'audio/wav' });
+        }
+
+        async function audioBufferToMp3Async(buffer, progressCallback) {
+            if (!window.lamejs) throw new Error("Libreria lamejs non caricata.");
+            const lame = window.lamejs; const mp3encoder = new lame.Mp3Encoder(2, buffer.sampleRate, 320);
+            const mp3Data = []; const left = buffer.getChannelData(0); const right = buffer.getChannelData(1);
+            const sampleBlockSize = 1152 * 100; const leftInt = new Int16Array(left.length); const rightInt = new Int16Array(right.length);
+            for (let i = 0; i < left.length; i++) { leftInt[i] = left[i] < 0 ? left[i] * 32768 : left[i] * 32767; rightInt[i] = right[i] < 0 ? right[i] * 32768 : right[i] * 32767; }
+            for (let i = 0; i < left.length; i += sampleBlockSize) {
+                const leftChunk = leftInt.subarray(i, i + sampleBlockSize); const rightChunk = rightInt.subarray(i, i + sampleBlockSize);
+                const mp3buf = mp3encoder.encodeBuffer(leftChunk, rightChunk);
+                if (mp3buf.length > 0) mp3Data.push(mp3buf);
+                if (progressCallback) progressCallback((i / left.length) * 100);
+                await new Promise(r => setTimeout(r, 5)); 
+            }
+            const mp3buf = mp3encoder.flush(); if (mp3buf.length > 0) mp3Data.push(mp3buf);
+            return new Blob(mp3Data, { type: 'audio/mp3' });
+        }
+
+        async function performRender(isAutopilot = false) {
+            btnRenderWav.disabled = true; btnAutopilot.disabled = true;
+            renderProgressContainer.classList.remove('hidden');
+            const sampleRate = parseInt(exportSampleRate.value, 10); const bitDepth = parseInt(exportBitDepth.value, 10); 
+            const durationSec = parseInt(exportDuration.value, 10); const carrier = parseFloat(selectCarrier.value);
+            const minutes = Math.round(durationSec / 60);
+
+            try {
+                renderProgressBar.style.width = '10%'; renderProgressText.innerText = '10%';
+                renderStatusText.innerText = 'DSP Offline Audio Engine...';
+                
+                const OfflineContextClass = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+                const offlineCtx = new OfflineContextClass(2, sampleRate * durationSec, sampleRate);
+                
+                const mGain = offlineCtx.createGain(); mGain.connect(offlineCtx.destination); mGain.gain.value = 1.0;
+                const tGain = offlineCtx.createGain(); tGain.connect(mGain); tGain.gain.value = TONE_MAX_GAIN;
+                const sGain = offlineCtx.createGain(); sGain.connect(mGain); sGain.gain.value = SURF_MAX_GAIN;
+                const oL = offlineCtx.createOscillator(); const oR = offlineCtx.createOscillator();
+                const gL = offlineCtx.createOscillator(); const gR = offlineCtx.createOscillator();
+                oL.type = 'sine'; oR.type = 'sine'; gL.type = 'sine'; gR.type = 'sine';
+                const pL = offlineCtx.createStereoPanner(); const pR = offlineCtx.createStereoPanner();
+                const pGL = offlineCtx.createStereoPanner(); const pGR = offlineCtx.createStereoPanner();
+                pL.pan.value = -1.0; pR.pan.value = 1.0; pGL.pan.value = -1.0; pGR.pan.value = 1.0;
+                oL.connect(pL).connect(tGain); oR.connect(pR).connect(tGain);
+                const gGainL = offlineCtx.createGain(); const gGainR = offlineCtx.createGain();
+                gGainL.gain.value = GAMMA_MAX_GAIN; gGainR.gain.value = GAMMA_MAX_GAIN;
+                gL.connect(gGainL).connect(pGL).connect(tGain); gR.connect(gGainR).connect(pGR).connect(tGain);
+
+                const nSource = offlineCtx.createBufferSource(); nSource.buffer = createBrownNoiseBuffer(offlineCtx, 6); nSource.loop = true;
+                const nFilter = offlineCtx.createBiquadFilter(); nFilter.type = 'lowpass'; nFilter.frequency.value = 280; nFilter.Q.value = 0.7;
+                const nLfo = offlineCtx.createOscillator(); nLfo.frequency.value = 0.08;
+                const nLfoGain = offlineCtx.createGain(); nLfoGain.gain.value = 120;
+                nLfo.connect(nLfoGain).connect(nFilter.frequency); nSource.connect(nFilter).connect(sGain);
+
+                const ctxPack = { currentTime: 0, oscBaseL: oL, oscBaseR: oR, oscGammaL: gL, oscGammaR: gR, toneGain: tGain, surfGain: sGain, noiseSource: nSource, noiseLfo: nLfo };
+                scheduleProtocol(ctxPack, durationSec, carrier, true);
+
+                renderProgressBar.style.width = '40%'; renderProgressText.innerText = '40%';
+                const renderedBuffer = await offlineCtx.startRendering();
+
+                if(isAutopilot) {
+                    renderStatusText.innerText = 'Autopilot: WAV Export...';
+                    await new Promise(r => setTimeout(r, 200)); 
+                    const wavBlob = audioBufferToWav(renderedBuffer, { bitDepth: bitDepth, float32: bitDepth === 32 });
+                    saveAs(wavBlob, `01_Master_Studio_NeuroSync_${minutes}min_${bitDepth}bit.wav`);
+
+                    renderStatusText.innerText = 'Autopilot: MP3 320kbps Encode...';
+                    const mp3Blob = await audioBufferToMp3Async(renderedBuffer, (progress) => {
+                        const totalProgress = 45 + (progress * 0.40);
+                        renderProgressBar.style.width = `${totalProgress}%`; renderProgressText.innerText = `${Math.round(totalProgress)}%`;
+                    });
+                    renderStatusText.innerText = 'Autopilot: Save MP3...';
+                    saveAs(mp3Blob, `02_Mobile_NeuroSync_${minutes}min_320kbps.mp3`);
+
+                    const copyText = document.getElementById('txtCopywriting').value;
+                    const certText = document.getElementById('txtCert').value;
+                    const fullDocs = `====================================================\n${copyText}\n\n\n${certText}`;
+                    saveAs(new Blob([fullDocs], { type: 'text/plain;charset=utf-8' }), "03_License_and_Specs.txt");
+                    
+                    renderProgressBar.style.width = '100%'; renderProgressText.innerText = '100%';
+                    renderStatusText.innerText = 'Complete!';
+                    showToast(_t("msg_autopilot_done"), "success");
+                } else {
+                    renderStatusText.innerText = 'WAV Export...';
+                    await new Promise(r => setTimeout(r, 200));
+                    const wavBlob = audioBufferToWav(renderedBuffer, { bitDepth: bitDepth, float32: bitDepth === 32 });
+                    saveAs(wavBlob, `NeuroSync_Pro_${minutes}min_${sampleRate / 1000}kHz_${bitDepth}bit.wav`);
+                    renderProgressBar.style.width = '100%'; renderProgressText.innerText = '100%';
+                    showToast("Export Complete!", "success");
+                }
+            } catch (err) {
+                console.error("Error:", err); showToast("Error: " + err.message, "amber");
+            } finally {
+                btnRenderWav.disabled = false; btnAutopilot.disabled = false;
+                setTimeout(() => renderProgressContainer.classList.add('hidden'), 5000);
+            }
+        }
+
+        let currentTargetIndex = -1;
+        const targetRevealBox = document.getElementById('targetRevealBox');
+
+        function initNewRVTarget() {
+            currentTargetIndex = Math.floor(Math.random() * 6);
+            const targetEl = document.getElementById('rvTargetId');
+            targetEl.innerText = `${Math.floor(1000+Math.random()*9000)}-${Math.floor(1000+Math.random()*9000)}`;
+            targetEl.classList.add('text-purple-400'); setTimeout(() => targetEl.classList.remove('text-purple-400'), 300);
+            targetRevealBox.classList.add('hidden', 'opacity-0', 'translate-y-4');
+        }
+
+        document.getElementById('btnNewTarget').addEventListener('click', initNewRVTarget);
+        document.getElementById('btnRevealTarget').addEventListener('click', () => {
+            if (currentTargetIndex === -1) return;
+            const target = rvTargetsData[currentLang][currentTargetIndex];
+            document.getElementById('revealImg').src = targetImages[currentTargetIndex];
+            document.getElementById('revealTitle').innerText = target.title;
+            document.getElementById('revealGestalt').innerText = target.gestalt;
+            targetRevealBox.classList.remove('hidden');
+            setTimeout(() => {
+                targetRevealBox.classList.remove('opacity-0', 'translate-y-4');
+                targetRevealBox.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            }, 10);
+        });
+
+        document.querySelectorAll('.rv-slider').forEach(slider => {
+            slider.addEventListener('mousedown', () => slider.dataset.dragging = "true");
+            slider.addEventListener('touchstart', () => slider.dataset.dragging = "true", {passive: true});
+            slider.addEventListener('input', (e) => {
+                const val = parseInt(e.target.value); const start = parseInt(e.target.getAttribute('data-start'));
+                document.getElementById(`rvTime${e.target.getAttribute('data-step')}`).innerText = formatTime(val - start);
+            });
+            const applySeek = (e) => { slider.dataset.dragging = "false"; playFromOffset(parseInt(e.target.value)); };
+            slider.addEventListener('mouseup', applySeek); slider.addEventListener('touchend', applySeek);
+        });
+
+        document.querySelectorAll('.rv-play-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const start = parseInt(btn.getAttribute('data-start')); const end = parseInt(btn.getAttribute('data-end'));
+                const logicalNow = getLogicalTime();
+                if (isPlaying && logicalNow >= start && logicalNow < end) pauseProtocol();
+                else if (!isPlaying && logicalNow >= start && logicalNow < end) playFromOffset(logicalNow); 
+                else playFromOffset(start);
+            });
+        });
+
+        document.getElementById('btnAutopilotRV').addEventListener('click', () => {
+            initNewRVTarget(); isRVAutopilot = true; playFromOffset(0);
+            showToast("Autopilot RV Active. Close your eyes.", "purple");
+            setTimeout(() => document.getElementById('rvCard1').scrollIntoView({ behavior: 'smooth', block: 'center' }), 500);
+        });
+
+        function populateCommercialAssets() {
+            const carrier = selectCarrier.value;
+            const title = _t("app_title") || "NEUROSYNC PRO™ - The Gateway Experience Protocol";
+            document.getElementById('txtCopywriting').value = `# ${title}\nFormat: WAV 24-bit / 48kHz + MP3 320kbps.\nDuration: 45:00\nTech: Precision Stereo Interaural Phase Synchronization (FFR) & Low-Frequency Ocean Surf Masking.\n\nCarrier: ${carrier} Hz.\n1. 00:00-05:00 | Alpha (10 Hz)\n2. 05:00-15:00 | Focus 10 (4 Hz Theta)\n3. 15:00-30:00 | Focus 12 (Delta 1.5 Hz + Gamma 40 Hz)\n4. 30:00-40:00 | Focus 15 (0.5 Hz Sub-Delta)\n5. 40:00-45:00 | Grounding (Beta 15 Hz)`;
+            document.getElementById('txtCert').value = `========================================================================\nCERTIFICATE OF ACOUSTIC ACCURACY & NEURO-CALIBRATION\n========================================================================\nCarrier Base: ${carrier} Hz (Pure Sine <0.01% THD)\nInteraural Isolation: Stereo L/R Balanced 100%\nMaster Dynamic Staging: Tone Peak -22.0 dBFS | Surf -12.0 dBFS\nBrainwave Windows: Alpha (10Hz) -> Theta (4Hz) -> Delta (1.5Hz) -> Sub-Delta (0.5Hz) -> Beta (15Hz)\nSubliminal Layer: 40.0 Hz Hyper-Lucidity Gamma (-32 dBFS)\nMastering Standard: High-Definition 24-bit PCM / Broadcast WAV Compliant\n========================================================================`;
+        }
+
+        btnPlay.addEventListener('click', () => { if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); isPlaying ? pauseProtocol() : startProtocol(); });
+        btnStop.addEventListener('click', stopProtocol);
+        selectCarrier.addEventListener('change', (e) => { valCarrier.innerText = `${e.target.value} Hz`; populateCommercialAssets(); });
+        volTones.addEventListener('input', (e) => { document.getElementById('valTones').innerText = Math.round(e.target.value * 100) + '%'; if (toneGain && audioCtx) toneGain.gain.setTargetAtTime(TONE_MAX_GAIN * e.target.value, audioCtx.currentTime, 0.1); });
+        volSurf.addEventListener('input', (e) => { document.getElementById('valSurf').innerText = Math.round(e.target.value * 100) + '%'; if (surfGain && audioCtx) surfGain.gain.setTargetAtTime(SURF_MAX_GAIN * e.target.value, audioCtx.currentTime, 0.1); });
+
+        viewScopeBtn.addEventListener('click', () => { currentVisMode = 'lissajous'; viewScopeBtn.className = "px-2 py-0.5 rounded bg-sky-500 text-slate-950 font-bold"; viewSpectrumBtn.className = "px-2 py-0.5 rounded bg-slate-800 text-slate-400 hover:text-white"; });
+        viewSpectrumBtn.addEventListener('click', () => { currentVisMode = 'spectrum'; viewSpectrumBtn.className = "px-2 py-0.5 rounded bg-sky-500 text-slate-950 font-bold"; viewScopeBtn.className = "px-2 py-0.5 rounded bg-slate-800 text-slate-400 hover:text-white"; });
+
+        ['Controls', 'Export', 'Commercial', 'RV'].forEach(tab => {
+            document.getElementById(`tab${tab}Btn`).addEventListener('click', () => {
+                ['Controls', 'Export', 'Commercial', 'RV'].forEach(t => {
+                    document.getElementById(`tab${t}`).classList.add('hidden');
+                    document.getElementById(`tab${t}Btn`).className = "text-sm font-bold text-slate-400 hover:text-white pb-2 -mb-3 transition-colors flex items-center gap-2";
+                });
+                document.getElementById(`tab${tab}`).classList.remove('hidden');
+                const colors = {Controls:'sky', Export:'amber', Commercial:'emerald', RV:'purple'};
+                document.getElementById(`tab${tab}Btn`).className = `text-sm font-bold text-${colors[tab]}-400 border-b-2 border-${colors[tab]}-400 pb-2 -mb-3 transition-colors flex items-center gap-2`;
+                if(tab === 'Export') exportEstimatedSize.innerText = `Size: ~${((44 + (parseInt(exportDuration.value, 10) * parseInt(exportSampleRate.value, 10) * 2 * (parseInt(exportBitDepth.value, 10) / 8))) / (1024 * 1024)).toFixed(1)} MB`;
+                if(tab === 'Commercial') populateCommercialAssets();
+            });
+        });
+
+        btnRenderWav.addEventListener('click', () => performRender(false));
+        btnAutopilot.addEventListener('click', () => performRender(true));
+        
+        document.getElementById('btnCopyCopywriting').addEventListener('click', () => { document.getElementById('txtCopywriting').select(); document.execCommand('copy'); showToast("Copied to clipboard!", "success"); });
+        document.getElementById('btnCopyCert').addEventListener('click', () => { document.getElementById('txtCert').select(); document.execCommand('copy'); showToast("Copied to clipboard!", "success"); });
+
+        window.addEventListener('load', () => {
+            setLanguage('it'); // Inizializza lingua di default
+            initNewRVTarget();
+            canvasCtx.fillStyle = '#030712'; canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+        });
+    </script>
+</body>
+</html>
